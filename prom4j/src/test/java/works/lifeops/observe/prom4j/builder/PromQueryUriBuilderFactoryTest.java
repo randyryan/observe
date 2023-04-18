@@ -43,8 +43,8 @@ public class PromQueryUriBuilderFactoryTest {
 
     promQuery = PromQuery.builder()
         .instant()
-        .metric("icluster_monitor_transactions_todotrans_gauge")
-        .label("group").equals(PromQuery.builder().value("GNTEST").or("GNSQL"))
+        .metric("go_threads")
+        .label("job").equals(PromQuery.builder().value("prometheus").or("eureka"))
         .build();
   }
 
@@ -59,7 +59,7 @@ public class PromQueryUriBuilderFactoryTest {
   public void testUriBuilderQueryParam() {
     URI uri = uriBuilder.queryParam("query", promQuery.toString()).build();
 
-    String uriString = "http://prometheus:9090/api/v1/query?query=icluster_monitor_transactions_todotrans_gauge%7Bgroup%3D~%22GNTEST%7CGNSQL%22%7D";
+    String uriString = "http://prometheus:9090/api/v1/query?query=go_threads%7Bjob%3D~%22prometheus%7Ceureka%22%7D";
     Assert.assertEquals("The PromQL query URI is properly built", uriString, uri.toString());
   }
 
@@ -67,7 +67,7 @@ public class PromQueryUriBuilderFactoryTest {
   public void testUriBuilderQueryParams() {
     URI uri = uriBuilder.queryParams(multiValueMap(promQuery)).build();
 
-    String uriString = "http://prometheus:9090/api/v1/query?query=icluster_monitor_transactions_todotrans_gauge%7Bgroup%3D~%22GNTEST%7CGNSQL%22%7D";
+    String uriString = "http://prometheus:9090/api/v1/query?query=go_threads%7Bjob%3D~%22prometheus%7Ceureka%22%7D";
     Assert.assertEquals("The PromQL query URI is properly built", uriString, uri.toString());
   }
 

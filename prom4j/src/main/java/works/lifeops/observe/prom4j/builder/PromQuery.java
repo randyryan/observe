@@ -106,6 +106,7 @@ public abstract class PromQuery {
 
   public static final class InstantQuery extends PromQuery {
     private String time;
+    private String duration;
 
     InstantQuery(String metric) {
       super(QueryType.INSTANT, metric);
@@ -120,8 +121,29 @@ public abstract class PromQuery {
       return this;
     }
 
+    InstantQuery duration(String duration) {
+      this.duration = duration;
+      return this;
+    }
+
     public Optional<String> time() {
       return Optional.ofNullable(time);
+    }
+
+    public Optional<String> duration() {
+      return Optional.ofNullable(duration);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      sb.append(super.toString());
+      if (!Strings.isNullOrEmpty(duration)) {
+        sb.append('[');
+        sb.append(duration);
+        sb.append(']');
+      }
+      return sb.toString();
     }
   }
 

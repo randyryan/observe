@@ -1,5 +1,7 @@
 package works.lifeops.observe.prom4j.builder;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.shaded.com.google.common.collect.Maps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -18,8 +21,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 public class PromQueryDeserializerTest {
 
   private ObjectMapper objectMapper;
-
-  private final String json = "{\"status\":\"success\",\"data\":{\"resultType\":\"vector\",\"result\":[{\"metric\":{\"__name__\":\"icluster_monitor_transactions_todotrans_gauge\",\"application\":\"icw-agent\",\"backup\":\"ICTST73B\",\"group\":\"GNDLO\",\"hadr\":\"ICTST73C\",\"instance\":\"10.112.103.18:8086\",\"job\":\"eureka\",\"journal\":\"QAUDJRN\",\"node\":\"ICTST73A\",\"primary\":\"ICTST73A\"},\"value\":[1.681353179312E9,\"0\"]},{\"metric\":{\"__name__\":\"icluster_monitor_transactions_todotrans_gauge\",\"application\":\"icw-agent\",\"backup\":\"ICTST73B\",\"group\":\"GNLARGE\",\"instance\":\"10.112.103.18:8086\",\"job\":\"eureka\",\"journal\":\"HADJRN\",\"node\":\"ICTST73A\",\"primary\":\"ICTST73A\"},\"value\":[1.681353179312E9,\"0\"]},{\"metric\":{\"__name__\":\"icluster_monitor_transactions_todotrans_gauge\",\"application\":\"icw-agent\",\"backup\":\"ICTST73B\",\"group\":\"GNLARGE\",\"instance\":\"10.112.103.18:8086\",\"job\":\"eureka\",\"journal\":\"QAUDJRN\",\"node\":\"ICTST73A\",\"primary\":\"ICTST73A\"},\"value\":[1.681353179312E9,\"0\"]},{\"metric\":{\"__name__\":\"icluster_monitor_transactions_todotrans_gauge\",\"application\":\"icw-agent\",\"backup\":\"ICTST73B\",\"group\":\"GNSQL\",\"instance\":\"10.112.103.18:8086\",\"job\":\"eureka\",\"journal\":\"QAUDJRN\",\"node\":\"ICTST73A\",\"primary\":\"ICTST73A\"},\"value\":[1.681353179312E9,\"0\"]},{\"metric\":{\"__name__\":\"icluster_monitor_transactions_todotrans_gauge\",\"application\":\"icw-agent\",\"backup\":\"ICTST73B\",\"group\":\"GNSQLHADR\",\"hadr\":\"ICTST73C\",\"instance\":\"10.112.103.18:8086\",\"job\":\"eureka\",\"journal\":\"QAUDJRN\",\"node\":\"ICTST73A\",\"primary\":\"ICTST73A\"},\"value\":[1.681353179312E9,\"0\"]},{\"metric\":{\"__name__\":\"icluster_monitor_transactions_todotrans_gauge\",\"application\":\"icw-agent\",\"backup\":\"ICTST73B\",\"group\":\"GNTEST\",\"hadr\":\"ICTST73C\",\"instance\":\"10.112.103.18:8086\",\"job\":\"eureka\",\"journal\":\"HADJRN\",\"node\":\"ICTST73A\",\"primary\":\"ICTST73A\"},\"value\":[1.681353179312E9,\"0\"]},{\"metric\":{\"__name__\":\"icluster_monitor_transactions_todotrans_gauge\",\"application\":\"icw-agent\",\"backup\":\"ICTST73B\",\"group\":\"GNTEST\",\"hadr\":\"ICTST73C\",\"instance\":\"10.112.103.18:8086\",\"job\":\"eureka\",\"journal\":\"QAUDJRN\",\"node\":\"ICTST73A\",\"primary\":\"ICTST73A\"},\"value\":[1.681353179312E9,\"0\"]},{\"metric\":{\"__name__\":\"icluster_monitor_transactions_todotrans_gauge\",\"application\":\"icw-agent\",\"backup\":\"ICTST73B\",\"group\":\"IC21617\",\"instance\":\"10.112.103.18:8086\",\"job\":\"eureka\",\"journal\":\"QAUDJRN\",\"node\":\"ICTST73A\",\"primary\":\"ICTST73A\"},\"value\":[1.681353179312E9,\"0\"]},{\"metric\":{\"__name__\":\"icluster_monitor_transactions_todotrans_gauge\",\"application\":\"icw-agent\",\"backup\":\"ICTST73B\",\"group\":\"IC21617HA\",\"hadr\":\"ICTST73C\",\"instance\":\"10.112.103.18:8086\",\"job\":\"eureka\",\"journal\":\"QAUDJRN\",\"node\":\"ICTST73A\",\"primary\":\"ICTST73A\"},\"value\":[1.681353179312E9,\"0\"]},{\"metric\":{\"__name__\":\"icluster_monitor_transactions_todotrans_gauge\",\"application\":\"icw-agent\",\"backup\":\"ICTST73C\",\"group\":\"GNDLO\",\"hadr\":\"ICTST73C\",\"instance\":\"10.112.103.18:8086\",\"job\":\"eureka\",\"journal\":\"QAUDJRN\",\"node\":\"ICTST73A\",\"primary\":\"ICTST73A\"},\"value\":[1.681353179312E9,\"0\"]},{\"metric\":{\"__name__\":\"icluster_monitor_transactions_todotrans_gauge\",\"application\":\"icw-agent\",\"backup\":\"ICTST73C\",\"group\":\"GNSQLHADR\",\"hadr\":\"ICTST73C\",\"instance\":\"10.112.103.18:8086\",\"job\":\"eureka\",\"journal\":\"QAUDJRN\",\"node\":\"ICTST73A\",\"primary\":\"ICTST73A\"},\"value\":[1.681353179312E9,\"0\"]},{\"metric\":{\"__name__\":\"icluster_monitor_transactions_todotrans_gauge\",\"application\":\"icw-agent\",\"backup\":\"ICTST73C\",\"group\":\"GNTEST\",\"hadr\":\"ICTST73C\",\"instance\":\"10.112.103.18:8086\",\"job\":\"eureka\",\"journal\":\"HADJRN\",\"node\":\"ICTST73A\",\"primary\":\"ICTST73A\"},\"value\":[1.681353179312E9,\"0\"]},{\"metric\":{\"__name__\":\"icluster_monitor_transactions_todotrans_gauge\",\"application\":\"icw-agent\",\"backup\":\"ICTST73C\",\"group\":\"GNTEST\",\"hadr\":\"ICTST73C\",\"instance\":\"10.112.103.18:8086\",\"job\":\"eureka\",\"journal\":\"QAUDJRN\",\"node\":\"ICTST73A\",\"primary\":\"ICTST73A\"},\"value\":[1.681353179312E9,\"0\"]},{\"metric\":{\"__name__\":\"icluster_monitor_transactions_todotrans_gauge\",\"application\":\"icw-agent\",\"backup\":\"ICTST73C\",\"group\":\"IC21617HA\",\"hadr\":\"ICTST73C\",\"instance\":\"10.112.103.18:8086\",\"job\":\"eureka\",\"journal\":\"QAUDJRN\",\"node\":\"ICTST73A\",\"primary\":\"ICTST73A\"},\"value\":[1.681353179312E9,\"0\"]}]}}";
+  
+  private InputStream queryVector;
 
   @BeforeEach
   public void setUpClass() {
@@ -29,46 +32,42 @@ public class PromQueryDeserializerTest {
     objectMapper = JsonMapper.builder()
         .addModule(module)
         .build();
+    
+    queryVector = Thread.currentThread().getContextClassLoader().getResourceAsStream("query_vector.json");
   }
 
   @Test
-  public void testDefaultDeserialization() throws JsonMappingException, JsonProcessingException {
-    PromQueryResponse response = objectMapper.readValue(json, PromQueryResponse.class);
+  public void testVectorResult() throws JsonMappingException, JsonProcessingException, IOException {
+    PromQueryResponse<PromQueryResponse.VectorResult> response =
+        objectMapper.readValue(queryVector, new TypeReference<PromQueryResponse<PromQueryResponse.VectorResult>>() {});
 
-    PromQueryResponse.Status status = PromQueryResponse.Status.SUCCESS;
-    PromQueryResponse.ResultType resultType = PromQueryResponse.ResultType.VECTOR;
-    Map<String, String> metric = Maps.newHashMap();
-    metric.put("__name__", "icluster_monitor_transactions_todotrans_gauge");
-    metric.put("application:", "icw-agent");
-    metric.put("backup", "ICTST73B");
-    metric.put("group", "GNDLO");
-    metric.put("hadr", "ICTST73C");
-    metric.put("instance", "10.112.103.18:8086");
-    metric.put("job", "eureka");
-    metric.put("journal", "QAUDJRN");
-    metric.put("node", "ICTST73A");
-    metric.put("primary", "ICTST73A");
+    Map<String, String> metric = Maps.newLinkedHashMap();
+    metric.put("__name__", "go_threads");
+    metric.put("instance", "localhost:9090");
+    metric.put("job", "prometheus");
     List<Object> value = Lists.newArrayList();
-    value.add(1.681353179312E9);
-    value.add("0");
+    value.add(1681824600);
+    value.add("10");
     PromQueryResponse.VectorResult resultItem = new PromQueryResponse.VectorResult(metric, value);
 
-    System.out.println("expected: " + resultItem.toString());
-    System.out.println("actual:   " + response.getData().getResult().get(0).toString());
-
     Assert.assertEquals("response.status is properly deserialized",
-        status, response.getStatus());
+        PromQueryResponse.Status.SUCCESS,
+        response.getStatus());
     Assert.assertEquals("response.data.resultType is properly deserialized",
-        resultType, response.getData().getResultType());
+        PromQueryResponse.ResultType.VECTOR,
+        response.getData().getResultType());
     // rough comparison
-    Assert.assertEquals("response.data.result list is properly deserialized",
-        14, response.getData().getResult().size());
+    Assert.assertEquals("response.data.result list is properly deserialized", 1, response.getData().getResult().size());
     // rough comparison
-    Assert.assertEquals("response.data.result item is properly deserialized",
-        resultItem.getMetric().size(), response.getData().getResult().get(0).getMetric().size());
+    Assert.assertEquals("response.data.result item is properly deserialized", resultItem.getMetric().size(), response.getData().getResult().get(0).getMetric().size());
     // rough comparison
-    Assert.assertEquals("response.data.result item is properly deserialized",
-        resultItem.getValue().size(), response.getData().getResult().get(0).getValue().size());
+    Assert.assertEquals("response.data.result item is properly deserialized", resultItem.getValue().size(), response.getData().getResult().get(0).getValue().size());
+  }
+
+  @Test
+  public void testMatrixResult() throws JsonMappingException, JsonProcessingException {
+//      PromQueryResponse<PromQueryResponse.MatrixResult> response =
+//              objectMapper.readValue(matrixJson, new TypeReference<PromQueryResponse<PromQueryResponse.MatrixResult>>() {});
   }
 
 }

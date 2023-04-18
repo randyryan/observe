@@ -6,11 +6,18 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 
+/**
+ * A Java representation of the response JSON returned from the Prometheus query API.
+ *
+ * @author Li Wan
+ */
 @Beta
 @lombok.Data
 @lombok.ToString
-public class PromQueryResponse {
-
+public class PromQueryResponse<R extends PromQueryResponse.Result> {
+  /**
+   * Maps the "status" node under the JSON root.
+   */
   public static enum Status {
     SUCCESS("success"),
     ERROR("error");
@@ -40,6 +47,26 @@ public class PromQueryResponse {
     }
   }
 
+  /**
+   * Maps the "data" node under the JSON root.
+   *
+   * @param <R> derivative type of the {@link Result}.
+   */
+  @lombok.Data
+  public static class Data<R extends PromQueryResponse.Result> {
+
+      private PromQueryResponse.ResultType resultType;
+      private List<R> result;
+
+      public Data() {
+          result = Lists.newArrayList();
+      }
+
+  }
+
+  /**
+   * Maps the "resultType" node under the "data" node.
+   */
   public static enum ResultType {
     MATRIX("matrix"),
     VECTOR("vector"),
@@ -65,12 +92,23 @@ public class PromQueryResponse {
       return type;
     }
 
+    // Syntactic sugar
+
+    public boolean is(ResultType resultType) {
+      return resultType == this;
+    }
+
+    // Object overrides
+
     @Override
     public String toString() {
       return type;
     }
   }
 
+  /**
+   * Maps the "result" node under the "data" node.
+   */
   public static abstract class Result {
 
     protected Map<String, String> metric;
@@ -79,43 +117,35 @@ public class PromQueryResponse {
 
   @lombok.Data
   @lombok.AllArgsConstructor
-  @lombok.EqualsAndHashCode
+  @lombok.EqualsAndHashCode(callSuper = false)
   public static class VectorResult extends Result {
 
-    private Map<String, String> metric;
+    private Map<String, String> metric; // XXX: The same one as the super, just to get the AllArgsConstructor work
     private List<Object> value;
 
   }
 
   @lombok.Data
   @lombok.AllArgsConstructor
+  @lombok.EqualsAndHashCode(callSuper = false)
   public static class MatrixResult extends Result {
 
+    private Map<String, String> metric; // XXX: The same one as the super, just to get the AllArgsConstructor work
     private List<List<Object>> values;
 
-    public Map<String, String> getMetric() {
-      return super.metric;
-    }
-
   }
 
-  @lombok.Data
-  public static class Data {
-
-    private ResultType resultType;
-    private List<VectorResult> result;
-
-    public Data() {
-      result = Lists.newArrayList();
-    }
-
-  }
+  // PromQueryResponse
 
   private Status status;
-  private Data data;
+  private Data<R> data;
 
   public PromQueryResponse() {
-    data = new Data();
+    data = new Data<R>();
+  }
+
+  public boolean hasResultOfType(PromQueryResponse.ResultType resultType) {
+    return getData().getResultType().is(resultType);
   }
 
 }

@@ -8,13 +8,13 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.Beta;
 
@@ -86,27 +86,15 @@ public class PromQueryService {
     PromQuery promQuery = PromQuery.builder()
         .instant()
         .metric(query)
+        .time("2023-04-15T00:00:00Z")
         .build();
 
-    client.get().uri(queryUri(promQuery)).retrieve().bodyToMono(Map.class).subscribe(map -> {
-      logger.info("PromQL \"{}\" map = {}", query, map.toString());
-    });
-    client.get().uri(queryUri(promQuery)).retrieve().bodyToMono(Map.class).subscribe(map -> {
-      String json;
-      try {
-        json = objectMapper.writeValueAsString(map);
-      } catch (JsonProcessingException e) {
-        json = "";
-      }
-      logger.info("PromQL \"{}\" json = {}", query, json);
-    });
-    client.get().uri(queryUri(promQuery)).retrieve().bodyToMono(PromQueryResponse.class).subscribe(response -> {
-      logger.info("PromQL \"{}\" promQueryResponse = {}", query, response.toString());
-    });
+    client.get().uri(queryUri(promQuery)).retrieve().bodyToMono(PromQueryResponse.class).subscribe(response ->
+        logger.info("PromQL \"{}\" promQueryResponse = {}", query, response.toString()));
   }
 
-  public Mono<PromQueryResponse> query(PromQuery promQuery) {
-    return client.get().uri(queryUri(promQuery)).retrieve().bodyToMono(PromQueryResponse.class);
+  public Mono<PromQueryResponse<PromQueryResponse.Result>> query(PromQuery promQuery) {
+    return client.get().uri(queryUri(promQuery)).retrieve().bodyToMono(new ParameterizedTypeReference<>() {});
   }
 
 }

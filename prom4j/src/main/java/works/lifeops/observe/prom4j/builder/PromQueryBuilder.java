@@ -54,6 +54,18 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
 
   public static class InstantQueryBuilder extends PromQueryBuilder<InstantQueryBuilder, PromQuery.InstantQuery> {
     private String time;
+    /**
+     * TODO: Use {@link java.time.Duration} and {@link java.time.Period} to handle the following:
+     *
+     * ms - milliseconds
+     * s - seconds
+     * m - minutes
+     * h - hours
+     * d - days - assuming a day has always 24h
+     * w - weeks - assuming a week has always 7d
+     * y - years - assuming a year has always 365d
+     */
+    private String duration;
 
     InstantQueryBuilder() {
       super(PromQuery.InstantQuery.class, PromQuery.QueryType.INSTANT);
@@ -64,13 +76,19 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
       return this;
     }
 
+    public InstantQueryBuilder duration(String duration) {
+      this.duration = duration;
+      return this;
+    }
+
     @Override
     public PromQuery.InstantQuery build() {
       String selector = super.criteria.isEmpty() ?
           "" :
           String.format("{%s}", String.join(",", super.criteria));
       return new PromQuery.InstantQuery(super.metric, selector)
-          .time(time);
+          .time(time)
+          .duration(duration);
     }
   }
 

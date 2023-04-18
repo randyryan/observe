@@ -22,50 +22,48 @@ public class PromQueryTest {
   public void testOnlyMetric() {
     PromQuery query = PromQuery.builder()
         .instant()
-        .metric("icluster_monitor_transactions_todotrans_gauge")
+        .metric("go_threads")
         .build();
 
-    Assert.assertEquals("Only metric is equal", "icluster_monitor_transactions_todotrans_gauge", query.toString());
+    Assert.assertEquals("Only metric is equal", "go_threads", query.toString());
   }
 
   @Test
   public void testOnlySelector() {
     PromQuery query = PromQuery.builder().instant()
-        .label("group").equals("GNTEST")
+        .label("job").equals("prometheus")
         .build();
 
-    Assert.assertEquals("Only selectors is equal", "{group=\"GNTEST\"}", query.toString());
+    Assert.assertEquals("Only selectors is equal", "{job=\"prometheus\"}", query.toString());
   }
 
   @Test
   public void testBoth() {
     PromQuery query = PromQuery.builder().instant()
-        .time("")
-        .metric("icluster_monitor_transactions_todotrans_gauge").time("")
-        .label("group").equals(value("GNTEST"))
+        .metric("go_threads").time("")
+        .label("job").equals("prometheus")
         .build();
 
-    Assert.assertEquals("Both metric and selectors is equal", "icluster_monitor_transactions_todotrans_gauge{group=\"GNTEST\"}", query.toString());
+    Assert.assertEquals("Both metric and selectors is equal", "go_threads{job=\"prometheus\"}", query.toString());
   }
 
   @Test
   public void testMultipleLabels() {
     PromQuery query = PromQuery.builder().instant()
-        .label("group").equals("GNTEST")
-        .label("node").equals("ICTST73A")
-        .label("job").equals("eureka")
+        .label("instance").equals("localhost:9090")
+        .label("job").equals("prometheus")
         .build();
 
-    Assert.assertEquals("Multiple labels is equal", "{group=\"GNTEST\",node=\"ICTST73A\",job=\"eureka\"}", query.toString());
+    Assert.assertEquals("Multiple labels is equal", "{instance=\"localhost:9090\",job=\"prometheus\"}", query.toString());
   }
 
   @Test
   public void testMultipleLabelValues() {
     PromQuery query = PromQuery.builder().instant()
-        .label("group").equals(value("GNTEST").or("GNSQL"))
+        .label("job").equals(value("prometheus").or("eureka"))
         .build();
 
-    Assert.assertEquals("Multiple label values is equal", "{group=~\"GNTEST|GNSQL\"}", query.toString());
+    Assert.assertEquals("Multiple label values is equal", "{job=~\"prometheus|eureka\"}", query.toString());
   }
 
 }

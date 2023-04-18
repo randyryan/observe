@@ -10,10 +10,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.annotations.Beta;
+import com.google.common.collect.Lists;
 
 @Beta
 @SuppressWarnings({"serial", "unchecked"})
-public class PromQueryDeserializer extends StdDeserializer<PromQueryResponse> {
+public class PromQueryDeserializer extends StdDeserializer<PromQueryResponse<PromQueryResponse.Result>> {
 
   protected PromQueryDeserializer(Class<?> vc) {
     super(vc);
@@ -24,7 +25,7 @@ public class PromQueryDeserializer extends StdDeserializer<PromQueryResponse> {
   }
 
   @Override
-  public PromQueryResponse deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+  public PromQueryResponse<PromQueryResponse.Result> deserialize(JsonParser parser, DeserializationContext context) throws IOException {
     JsonNode responseNode = parser.readValueAsTree();
     JsonNode statusNode = responseNode.get("status");
     JsonNode dataNode = responseNode.get("data");
@@ -32,7 +33,7 @@ public class PromQueryDeserializer extends StdDeserializer<PromQueryResponse> {
     JsonNode resultsNode = dataNode.get("result");
 
     // response (root)
-    PromQueryResponse response = new PromQueryResponse();
+    PromQueryResponse<PromQueryResponse.Result> response = new PromQueryResponse<PromQueryResponse.Result>();
 
     // response.status
     PromQueryResponse.Status status = PromQueryResponse.Status.fromString(statusNode.textValue());
@@ -43,15 +44,34 @@ public class PromQueryDeserializer extends StdDeserializer<PromQueryResponse> {
     response.getData().setResultType(resultType);
 
     // response.data.result (list)
-    for (Iterator<JsonNode> resultNodeIterator = resultsNode.elements(); resultNodeIterator.hasNext(); ) {
-      JsonNode resultNode = resultNodeIterator.next();
+    if (resultType.is(PromQueryResponse.ResultType.VECTOR)) {
+      for (Iterator<JsonNode> resultNodeIterator = resultsNode.elements(); resultNodeIterator.hasNext(); ) {
+        JsonNode resultNode = resultNodeIterator.next();
 
-      JsonNode resultMetricNode = resultNode.get("metric");
-      Map<String, String> metric = context.readTreeAsValue(resultMetricNode, Map.class);
-      JsonNode resultValueNode = resultNode.get("value");
-      List<Object> value = context.readTreeAsValue(resultValueNode, List.class);
+        JsonNode resultMetricNode = resultNode.get("metric");
+        Map<String, String> metric = context.readTreeAsValue(resultMetricNode, Map.class);
+        JsonNode resultValueNode = resultNode.get("value");
+        List<Object> value = context.readTreeAsValue(resultValueNode, List.class);
 
-      response.getData().getResult().add(new PromQueryResponse.VectorResult(metric, value));
+        response.getData().getResult().add(new PromQueryResponse.VectorResult(metric, value));
+      }
+    }
+    if (resultType.is(PromQueryResponse.ResultType.MATRIX)) {
+      for (Iterator<JsonNode> resultNodeIterator = resultsNode.elements(); resultNodeIterator.hasNext(); ) {
+        JsonNode resultNode = resultNodeIterator.next();
+
+        JsonNode resultMetricNode = resultNode.get("metric");
+        Map<String, String> metric = context.readTreeAsValue(resultMetricNode, Map.class);
+        JsonNode resultValuesNode = resultNode.get("values");
+        List<List<Object>> values = Lists.newArrayList();
+        for(Iterator<JsonNode> valueNodeIterator = resultValuesNode.elements(); valueNodeIterator.hasNext(); ) {
+          JsonNode valueNode = valueNodeIterator.next();
+          List<Object> value = context.readTreeAsValue(valueNode, List.class);
+          values.add(value);
+        }
+
+        response.getData().getResult().add(new PromQueryResponse.MatrixResult(metric, values));
+      }
     }
 
     return response;
