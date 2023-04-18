@@ -1,0 +1,6 @@
+prometheus:
+  server:
+    base-uri: http://prometheus:9090
+
+server:
+  port: 8090

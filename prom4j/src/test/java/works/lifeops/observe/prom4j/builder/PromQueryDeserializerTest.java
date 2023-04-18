@@ -23,6 +23,7 @@ public class PromQueryDeserializerTest {
   private ObjectMapper objectMapper;
   
   private InputStream queryVector;
+  private InputStream queryMatrix;
 
   @BeforeEach
   public void setUpClass() {
@@ -34,6 +35,7 @@ public class PromQueryDeserializerTest {
         .build();
     
     queryVector = Thread.currentThread().getContextClassLoader().getResourceAsStream("query_vector.json");
+    queryMatrix = Thread.currentThread().getContextClassLoader().getResourceAsStream("query_matrix.json");
   }
 
   @Test
@@ -65,9 +67,36 @@ public class PromQueryDeserializerTest {
   }
 
   @Test
-  public void testMatrixResult() throws JsonMappingException, JsonProcessingException {
-//      PromQueryResponse<PromQueryResponse.MatrixResult> response =
-//              objectMapper.readValue(matrixJson, new TypeReference<PromQueryResponse<PromQueryResponse.MatrixResult>>() {});
+  public void testMatrixResult() throws JsonMappingException, JsonProcessingException, IOException {
+    Map<String, String> metric = Maps.newLinkedHashMap();
+    metric.put("__name__", "go_threads");
+    metric.put("instance", "localhost:9090");
+    metric.put("job", "prometheus");
+    List<List<Object>> values = Lists.newArrayList();
+    values.add(List.of(1681824540, "10"));
+    values.add(List.of(1681824550, "10"));
+    values.add(List.of(1681824560, "10"));
+    values.add(List.of(1681824570, "10"));
+    values.add(List.of(1681824580, "10"));
+    values.add(List.of(1681824590, "10"));
+    values.add(List.of(1681824600, "10"));
+    PromQueryResponse.MatrixResult resultItem = new PromQueryResponse.MatrixResult(metric, values);
+
+    PromQueryResponse<PromQueryResponse.MatrixResult> response =
+        objectMapper.readValue(queryMatrix, new TypeReference<PromQueryResponse<PromQueryResponse.MatrixResult>>() {});
+
+    Assert.assertEquals("response.status is properly deserialized",
+        PromQueryResponse.Status.SUCCESS,
+        response.getStatus());
+    Assert.assertEquals("response.data.resultType is properly deserialized",
+        PromQueryResponse.ResultType.MATRIX,
+        response.getData().getResultType());
+    // rough comparison
+    Assert.assertEquals("response.data.result list is properly deserialized", 1, response.getData().getResult().size());
+    // rough comparison
+    Assert.assertEquals("response.data.result item is properly deserialized", resultItem.getMetric().size(), response.getData().getResult().get(0).getMetric().size());
+    // rough comparison
+    Assert.assertEquals("response.data.result item is properly deserialized", resultItem.getValues().size(), response.getData().getResult().get(0).getValues().size());
   }
 
 }

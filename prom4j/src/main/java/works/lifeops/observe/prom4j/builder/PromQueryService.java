@@ -93,7 +93,7 @@ public class PromQueryService {
         logger.info("PromQL \"{}\" promQueryResponse = {}", query, response.toString()));
   }
 
-  public Mono<PromQueryResponse<PromQueryResponse.Result>> query(PromQuery promQuery) {
+  public <R extends PromQueryResponse.Result> Mono<PromQueryResponse<R>> query(PromQuery promQuery) {
     return client.get().uri(queryUri(promQuery)).retrieve().bodyToMono(new ParameterizedTypeReference<>() {});
   }
 
