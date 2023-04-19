@@ -1,12 +1,16 @@
 package works.lifeops.observe.prom4j.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,13 +23,23 @@ import works.lifeops.observe.prom4j.builder.PromQueryUriBuilderFactory;
 
 @Configuration
 public class PrometheusConfiguration {
-
   @Value("${prometheus.server.base-uri}/api/v1")
   private String prometheusServerBaseUrl;
 
   @Bean("promQueryUriBuilderFactory")
   UriBuilderFactory promQueryUriBuilderFactory() {
     return new PromQueryUriBuilderFactory(prometheusServerBaseUrl);
+  }
+
+  /**
+   * For occasions when we want to obtain a request {@link java.net.URI} involves a PromQuery object, e.g. passing one
+   * to RestTemplate.
+   */
+  @Bean("promQueryUriBuilder")
+  UriBuilder promQueryUriBuilder() {
+      // TODO: This creates duplicated instances, we can no longer inject the bean within the same configuration after
+      //       Spring Boot 2.6. Need to come out with a solution to this.
+      return promQueryUriBuilderFactory().builder();
   }
 
   @Bean("promQueryWebClient")
@@ -45,6 +59,19 @@ public class PrometheusConfiguration {
         .build();
   }
 
+  @Bean("promQueryRestTemplate")
+  RestTemplate prometheusServerRestTemplate() {
+      MappingJackson2HttpMessageConverter messageConverter = new MappingJackson2HttpMessageConverter();
+      // TODO: This creates duplicated instances, we can no longer inject the bean within the same configuration after
+      //       Spring Boot 2.6. Need to come out with a solution to this.
+      messageConverter.setObjectMapper(prometheusObjectMapper());
+
+      return new RestTemplateBuilder()
+          .rootUri(prometheusServerBaseUrl)
+          .messageConverters(messageConverter)
+          .build();
+  }
+
   @Bean("promObjectMapper")
   ObjectMapper prometheusObjectMapper() {
     SimpleModule module = new SimpleModule();
@@ -54,5 +81,4 @@ public class PrometheusConfiguration {
         .addModule(module)
         .build();
   }
-
 }

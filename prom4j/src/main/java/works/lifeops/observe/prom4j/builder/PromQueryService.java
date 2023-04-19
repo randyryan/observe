@@ -9,9 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 
@@ -74,11 +77,17 @@ public class PromQueryService {
   }
 
   private final WebClient client;
+  private final RestTemplate restTemplate;
+  private final UriBuilder uriBuilder;
   private final ObjectMapper objectMapper;
 
   private PromQueryService(@Qualifier("promQueryWebClient") final WebClient client,
+                           @Qualifier("promQueryRestTemplate") final RestTemplate restTemplate,
+                           @Qualifier("promQueryUriBuilder") final UriBuilder uriBuilder,
                            @Qualifier("promObjectMapper") final ObjectMapper objectMapper) {
     this.client = client;
+    this.restTemplate = restTemplate;
+    this.uriBuilder = uriBuilder;
     this.objectMapper = objectMapper;
   }
 
@@ -95,5 +104,10 @@ public class PromQueryService {
 
   public <R extends PromQueryResponse.Result> Mono<PromQueryResponse<R>> query(PromQuery promQuery) {
     return client.get().uri(queryUri(promQuery)).retrieve().bodyToMono(new ParameterizedTypeReference<>() {});
+  }
+
+  public <R extends PromQueryResponse.Result> ResponseEntity<PromQueryResponse<R>> queryB(PromQuery promQuery) {
+      URI uri = queryUri(promQuery).apply(uriBuilder);
+      return restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
   }
 }

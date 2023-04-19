@@ -41,7 +41,7 @@ public class PromQueryTest {
   public void testBoth() {
     PromQuery query = PromQuery.builder()
         .instant()
-        .metric("go_threads").time("")
+        .metric("go_threads")
         .label("job").equals("prometheus")
         .build();
 
