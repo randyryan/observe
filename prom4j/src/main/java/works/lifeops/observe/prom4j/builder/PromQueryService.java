@@ -18,14 +18,14 @@ import org.springframework.web.util.UriBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.Beta;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Beta
 @SuppressWarnings("unused")
+@Slf4j
 @Service
 public class PromQueryService {
-
-  private static final Logger logger = LoggerFactory.getLogger(PromQueryService.class);
 
   /**
    * Builds the MultiValueMap required by the UriComponentsBuilder.queryParams for building
@@ -52,17 +52,17 @@ public class PromQueryService {
         promQuery.is(PromQuery.QueryType.RANGE) ?
             "/query_range" :
             "";
-    logger.info("PromQL \"{}\" -> {}", promQuery.toString(), "/api/v1" + path);
+    log.info("PromQL \"{}\" -> {}", promQuery.toString(), "/api/v1" + path);
 
     MultiValueMap<String, String> queryParams = multiValueMap(promQuery);
 
     return uriBuilder -> {
       if (promQuery.is(PromQuery.QueryType.INSTANT)) {
-        logger.info("PromQuery is instant");
+        log.info("PromQuery is instant");
         promQuery.asInstant().time().ifPresent(time -> uriBuilder.queryParam("time", time));
       }
       if (promQuery.is(PromQuery.QueryType.RANGE)) {
-        logger.info("PromQuery is range");
+        log.info("PromQuery is range");
         promQuery.asRange().start().ifPresent(start -> uriBuilder.queryParam("start", start));
         promQuery.asRange().end().ifPresent(end -> uriBuilder.queryParam("end", end));
       }
@@ -90,11 +90,10 @@ public class PromQueryService {
         .build();
 
     client.get().uri(queryUri(promQuery)).retrieve().bodyToMono(PromQueryResponse.class).subscribe(response ->
-        logger.info("PromQL \"{}\" promQueryResponse = {}", query, response.toString()));
+        log.info("PromQL \"{}\" promQueryResponse = {}", query, response.toString()));
   }
 
   public <R extends PromQueryResponse.Result> Mono<PromQueryResponse<R>> query(PromQuery promQuery) {
     return client.get().uri(queryUri(promQuery)).retrieve().bodyToMono(new ParameterizedTypeReference<>() {});
   }
-
 }

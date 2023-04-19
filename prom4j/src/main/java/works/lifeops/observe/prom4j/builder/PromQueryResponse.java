@@ -54,14 +54,12 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
    */
   @lombok.Data
   public static class Data<R extends PromQueryResponse.Result> {
+    private PromQueryResponse.ResultType resultType;
+    private List<R> result;
 
-      private PromQueryResponse.ResultType resultType;
-      private List<R> result;
-
-      public Data() {
-          result = Lists.newArrayList();
-      }
-
+    public Data() {
+      result = Lists.newArrayList();
+    }
   }
 
   /**
@@ -110,29 +108,23 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
    * Maps the "result" node under the "data" node.
    */
   public static abstract class Result {
-
     protected Map<String, String> metric;
-
   }
 
   @lombok.Data
   @lombok.AllArgsConstructor
   @lombok.EqualsAndHashCode(callSuper = false)
   public static class VectorResult extends Result {
-
     private Map<String, String> metric; // XXX: The same one as the super, just to get the AllArgsConstructor work
     private List<Object> value;
-
   }
 
   @lombok.Data
   @lombok.AllArgsConstructor
   @lombok.EqualsAndHashCode(callSuper = false)
   public static class MatrixResult extends Result {
-
     private Map<String, String> metric; // XXX: The same one as the super, just to get the AllArgsConstructor work
     private List<List<Object>> values;
-
   }
 
   // PromQueryResponse

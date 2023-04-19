@@ -35,11 +35,11 @@ public abstract class PromQuery {
     }
   }
 
-  private static final QueryBuilders QUERY_BUILDERS = new QueryBuilders();
-
   public static QueryBuilders builder() {
     return QUERY_BUILDERS;
   }
+
+  private static final QueryBuilders QUERY_BUILDERS = new QueryBuilders();
 
   public static PromQueryBuilder.LabelValueBuilder value(String value) {
     return QUERY_BUILDERS.value(value);
@@ -121,18 +121,20 @@ public abstract class PromQuery {
       return this;
     }
 
+    public Optional<String> time() {
+      return Optional.ofNullable(time);
+    }
+
     InstantQuery duration(String duration) {
       this.duration = duration;
       return this;
     }
 
-    public Optional<String> time() {
-      return Optional.ofNullable(time);
-    }
-
     public Optional<String> duration() {
       return Optional.ofNullable(duration);
     }
+
+    // Object overrides
 
     @Override
     public String toString() {

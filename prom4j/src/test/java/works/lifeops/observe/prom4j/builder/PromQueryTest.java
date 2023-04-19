@@ -6,7 +6,6 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 public class PromQueryTest {
-
   @Test
   public void testQueryType() {
     PromQuery query = PromQuery.builder()
@@ -30,7 +29,8 @@ public class PromQueryTest {
 
   @Test
   public void testOnlySelector() {
-    PromQuery query = PromQuery.builder().instant()
+    PromQuery query = PromQuery.builder()
+        .instant()
         .label("job").equals("prometheus")
         .build();
 
@@ -39,7 +39,8 @@ public class PromQueryTest {
 
   @Test
   public void testBoth() {
-    PromQuery query = PromQuery.builder().instant()
+    PromQuery query = PromQuery.builder()
+        .instant()
         .metric("go_threads").time("")
         .label("job").equals("prometheus")
         .build();
@@ -49,7 +50,8 @@ public class PromQueryTest {
 
   @Test
   public void testMultipleLabels() {
-    PromQuery query = PromQuery.builder().instant()
+    PromQuery query = PromQuery.builder()
+        .instant()
         .label("instance").equals("localhost:9090")
         .label("job").equals("prometheus")
         .build();
@@ -59,11 +61,22 @@ public class PromQueryTest {
 
   @Test
   public void testMultipleLabelValues() {
-    PromQuery query = PromQuery.builder().instant()
+    PromQuery query = PromQuery.builder()
+        .instant()
         .label("job").equals(value("prometheus").or("eureka"))
         .build();
 
     Assert.assertEquals("Multiple label values is equal", "{job=~\"prometheus|eureka\"}", query.toString());
   }
 
+  @Test
+  public void testDuration() {
+    PromQuery query = PromQuery.builder()
+            .instant()
+            .metric("go_threads")
+            .duration().m(1).s(30)
+            .build();
+
+    Assert.assertEquals("Duration is properly built", "go_threads[1m30s]", query.toString());
+  }
 }

@@ -5,6 +5,9 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
 /**
  * A builder of PromQuery objects, currently has no integrity checks and validations.
  *
@@ -52,6 +55,86 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
 
   // Internal types
 
+  @Accessors(fluent = true)
+  public static final class DurationBuilder {
+    private final InstantQueryBuilder builder;
+    @Setter
+    private long ms;
+    @Setter
+    private long s;
+    @Setter
+    private long m;
+    @Setter
+    private long h;
+    @Setter
+    private long d;
+    @Setter
+    private long w;
+    @Setter
+    private long y;
+
+    private DurationBuilder(InstantQueryBuilder builder) {
+      this.builder = builder;
+    }
+
+    public DurationBuilder from(java.time.Duration duration) {
+      throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
+     * Let the duration to be the last step of building an instant query. Another thought: Label value builder.
+     */
+    public PromQuery.InstantQuery build() {
+      builder.duration = toString();
+      return builder.build();
+    }
+
+    @Override
+    public String toString() {
+      /*
+      return String.format("%s%s%s%s%s%s%s",
+          y > 0 ? y + "y" : "",
+          w > 0 ? w + "w" : "",
+          d > 0 ? d + "d" : "",
+          h > 0 ? h + "d" : "",
+          m > 0 ? m + "m" : "",
+          s > 0 ? s + "s" : "",
+          ms > 0 ? ms + "ms" : "");
+      */
+      // StringBuilder is a faster approach according to benchmarking
+      StringBuilder sb = new StringBuilder();
+      if (y > 0) {
+        sb.append(y);
+        sb.append('y');
+      }
+      if (w > 0) {
+        sb.append(w);
+        sb.append('w');
+      }
+      if (d > 0) {
+        sb.append(d);
+        sb.append('d');
+      }
+      if (h > 0) {
+        sb.append(h);
+        sb.append('h');
+      }
+      if (m > 0) {
+        sb.append(m);
+        sb.append('m');
+      }
+      if (s > 0) {
+        sb.append(s);
+        sb.append('s');
+      }
+      if (ms > 0) {
+        sb.append(ms);
+        sb.append("ms");
+      }
+      return sb.toString();
+    }
+  }
+
   public static class InstantQueryBuilder extends PromQueryBuilder<InstantQueryBuilder, PromQuery.InstantQuery> {
     private String time;
     /**
@@ -79,6 +162,10 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
     public InstantQueryBuilder duration(String duration) {
       this.duration = duration;
       return this;
+    }
+
+    public DurationBuilder duration() {
+        return new DurationBuilder(this);
     }
 
     @Override

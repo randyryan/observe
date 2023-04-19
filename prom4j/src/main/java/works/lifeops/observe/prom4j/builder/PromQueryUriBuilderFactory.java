@@ -25,7 +25,6 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 public class PromQueryUriBuilderFactory extends DefaultUriBuilderFactory implements UriBuilderFactory {
-
   /**
    * DefaultUriBuilderFactory.baseUri should be protected.
    */
@@ -64,7 +63,6 @@ public class PromQueryUriBuilderFactory extends DefaultUriBuilderFactory impleme
   }
 
   protected class PromQueryUriBuilder implements UriBuilder {
-
     private final UriComponentsBuilder uriComponentsBuilder;
 
     public PromQueryUriBuilder(String uriTemplate) {
@@ -243,5 +241,4 @@ public class PromQueryUriBuilderFactory extends DefaultUriBuilderFactory impleme
       return URI.create(uric.toString());
     }
   }
-
 }
