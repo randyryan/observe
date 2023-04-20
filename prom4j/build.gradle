@@ -26,6 +26,9 @@ ext {
 dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    implementation "org.mapstruct:mapstruct:1.5.4.Final"
+    annotationProcessor "org.mapstruct:mapstruct-processor:1.5.4.Final"
+    testAnnotationProcessor "org.mapstruct:mapstruct-processor:1.5.4.Final"
     implementation 'com.google.guava:guava:31.1-jre'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     implementation group: 'com.github.spotbugs', name: 'spotbugs', version: '4.7.3', ext: 'pom'
