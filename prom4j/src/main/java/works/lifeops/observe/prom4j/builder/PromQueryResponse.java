@@ -111,12 +111,23 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
     protected Map<String, String> metric;
   }
 
+  /**
+   * Maps the "value" under the "result" node.
+   */
+  @lombok.Data
+  @lombok.AllArgsConstructor
+  @lombok.EqualsAndHashCode
+  public static final class ResultValue {
+      private double time;
+      private String value;
+  }
+
   @lombok.Data
   @lombok.AllArgsConstructor
   @lombok.EqualsAndHashCode(callSuper = false)
   public static class VectorResult extends Result {
-    private Map<String, String> metric; // XXX: The same one as the super, just to get the AllArgsConstructor work
-    private List<Object> value;
+      private Map<String, String> metric; // XXX: The same one as the super, just to get the AllArgsConstructor work
+      private ResultValue value;
   }
 
   @lombok.Data

@@ -5,11 +5,9 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.compress.utils.Lists;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.shaded.com.google.common.collect.Maps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -17,11 +15,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class PromQueryDeserializerTest {
-
   private ObjectMapper objectMapper;
-  
+
   private InputStream queryVector;
   private InputStream queryMatrix;
 
@@ -33,7 +32,7 @@ public class PromQueryDeserializerTest {
     objectMapper = JsonMapper.builder()
         .addModule(module)
         .build();
-    
+
     queryVector = Thread.currentThread().getContextClassLoader().getResourceAsStream("query_vector.json");
     queryMatrix = Thread.currentThread().getContextClassLoader().getResourceAsStream("query_matrix.json");
   }
@@ -47,9 +46,7 @@ public class PromQueryDeserializerTest {
     metric.put("__name__", "go_threads");
     metric.put("instance", "localhost:9090");
     metric.put("job", "prometheus");
-    List<Object> value = Lists.newArrayList();
-    value.add(1681824600);
-    value.add("10");
+    PromQueryResponse.ResultValue value = new PromQueryResponse.ResultValue(1681824600, "10");
     PromQueryResponse.VectorResult resultItem = new PromQueryResponse.VectorResult(metric, value);
 
     Assert.assertEquals("response.status is properly deserialized",
@@ -59,11 +56,17 @@ public class PromQueryDeserializerTest {
         PromQueryResponse.ResultType.VECTOR,
         response.getData().getResultType());
     // rough comparison
-    Assert.assertEquals("response.data.result list is properly deserialized", 1, response.getData().getResult().size());
+    Assert.assertEquals("response.data.result list is properly deserialized",
+        1,
+        response.getData().getResult().size());
     // rough comparison
-    Assert.assertEquals("response.data.result item is properly deserialized", resultItem.getMetric().size(), response.getData().getResult().get(0).getMetric().size());
+    Assert.assertEquals("response.data.result item is properly deserialized",
+        resultItem.getMetric().size(),
+        response.getData().getResult().get(0).getMetric().size());
     // rough comparison
-    Assert.assertEquals("response.data.result item is properly deserialized", resultItem.getValue().size(), response.getData().getResult().get(0).getValue().size());
+    Assert.assertEquals("response.data.result item is properly deserialized",
+        resultItem.getValue().toString(),
+        response.getData().getResult().get(0).getValue().toString());
   }
 
   @Test
@@ -92,11 +95,16 @@ public class PromQueryDeserializerTest {
         PromQueryResponse.ResultType.MATRIX,
         response.getData().getResultType());
     // rough comparison
-    Assert.assertEquals("response.data.result list is properly deserialized", 1, response.getData().getResult().size());
+    Assert.assertEquals("response.data.result list is properly deserialized",
+        1,
+        response.getData().getResult().size());
     // rough comparison
-    Assert.assertEquals("response.data.result item is properly deserialized", resultItem.getMetric().size(), response.getData().getResult().get(0).getMetric().size());
+    Assert.assertEquals("response.data.result item is properly deserialized",
+        resultItem.getMetric().size(),
+        response.getData().getResult().get(0).getMetric().size());
     // rough comparison
-    Assert.assertEquals("response.data.result item is properly deserialized", resultItem.getValues().size(), response.getData().getResult().get(0).getValues().size());
+    Assert.assertEquals("response.data.result item is properly deserialized",
+        resultItem.getValues().size(),
+        response.getData().getResult().get(0).getValues().size());
   }
-
 }

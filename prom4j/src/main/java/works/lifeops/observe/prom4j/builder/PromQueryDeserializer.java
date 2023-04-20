@@ -51,7 +51,9 @@ public class PromQueryDeserializer extends StdDeserializer<PromQueryResponse<Pro
         JsonNode resultMetricNode = resultNode.get("metric");
         Map<String, String> metric = context.readTreeAsValue(resultMetricNode, Map.class);
         JsonNode resultValueNode = resultNode.get("value");
-        List<Object> value = context.readTreeAsValue(resultValueNode, List.class);
+        PromQueryResponse.ResultValue value = new PromQueryResponse.ResultValue(
+            resultValueNode.get(0).asDouble(),
+            resultValueNode.get(1).asText());
 
         response.getData().getResult().add(new PromQueryResponse.VectorResult(metric, value));
       }
