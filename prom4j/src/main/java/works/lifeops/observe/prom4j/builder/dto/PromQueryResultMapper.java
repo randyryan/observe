@@ -22,4 +22,14 @@ public interface PromQueryResultMapper {
         .map(this::vectorResultToDto)
         .collect(Collectors.toList());
   }
+
+  @Mapping(expression = "java(result.getMetric().get(\"name\"))", target="name")
+  @Mapping(source = "metric", target = "labels")
+  PromQueryResultDto.MatrixResultDto matrixResultToDto(PromQueryResponse.MatrixResult result);
+
+  default List<PromQueryResultDto.MatrixResultDto> matrixResponseToResultDtos(PromQueryResponse<PromQueryResponse.MatrixResult> response) {
+    return response.getData().getResult().stream()
+        .map(this::matrixResultToDto)
+        .collect(Collectors.toList());
+  }
 }

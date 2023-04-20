@@ -21,6 +21,7 @@ public class PromQueryResultMapperTest {
   private ObjectMapper objectMapper;
 
   private InputStream queryVector;
+  private InputStream queryMatrix;
 
   @BeforeEach
   public void setUpClass() {
@@ -32,10 +33,11 @@ public class PromQueryResultMapperTest {
         .build();
 
     queryVector = Thread.currentThread().getContextClassLoader().getResourceAsStream("query_vector.json");
+    queryMatrix = Thread.currentThread().getContextClassLoader().getResourceAsStream("query_matrix.json");
   }
 
   @Test
-  public void testMapper() throws IOException {
+  public void testMappingVectorResult() throws IOException {
     PromQueryResponse<PromQueryResponse.VectorResult> response =
         objectMapper.readValue(queryVector, new TypeReference<PromQueryResponse<PromQueryResponse.VectorResult>>() {});
 
@@ -45,6 +47,22 @@ public class PromQueryResultMapperTest {
     PromQueryResultDto.VectorResultDto vectorResult = vectorResults.get(0);
     Assert.assertEquals(response.getData().getResult().get(0).getValue().getTime(), vectorResult.getValue().getTime(), 0);
     Assert.assertEquals("Value of mapped results are equal", response.getData().getResult().get(0).getValue().getValue(), vectorResult.getValue().getValue());
+  }
+
+  @Test
+  public void testMappingMatrixResult() throws IOException {
+    PromQueryResponse<PromQueryResponse.MatrixResult> response =
+        objectMapper.readValue(queryMatrix, new TypeReference<PromQueryResponse<PromQueryResponse.MatrixResult>>() {});
+
+    List<PromQueryResultDto.MatrixResultDto> matrixResults = PromQueryResultMapper.INSTANCE.matrixResponseToResultDtos(response);
+    Assert.assertEquals("Number of mapped results are equal", 1, matrixResults.size());
+
+    PromQueryResultDto.MatrixResultDto matrixResult = matrixResults.get(0);
+    for (int i = 0; i < response.getData().getResult().get(0).getValues().size(); i++) {
+      PromQueryResponse.ResultValue responseValue = response.getData().getResult().get(0).getValues().get(i);
+      PromQueryResponse.ResultValue dtoValue = matrixResult.getValues().get(i);
+      Assert.assertEquals("ResultValues are equal", responseValue, dtoValue);
+    }
   }
 
 }

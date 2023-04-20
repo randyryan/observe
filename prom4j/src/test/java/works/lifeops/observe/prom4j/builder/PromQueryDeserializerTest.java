@@ -75,14 +75,14 @@ public class PromQueryDeserializerTest {
     metric.put("__name__", "go_threads");
     metric.put("instance", "localhost:9090");
     metric.put("job", "prometheus");
-    List<List<Object>> values = Lists.newArrayList();
-    values.add(List.of(1681824540, "10"));
-    values.add(List.of(1681824550, "10"));
-    values.add(List.of(1681824560, "10"));
-    values.add(List.of(1681824570, "10"));
-    values.add(List.of(1681824580, "10"));
-    values.add(List.of(1681824590, "10"));
-    values.add(List.of(1681824600, "10"));
+    List<PromQueryResponse.ResultValue> values = Lists.newArrayList();
+    values.add(new PromQueryResponse.ResultValue(1681824540, "10"));
+    values.add(new PromQueryResponse.ResultValue(1681824550, "10"));
+    values.add(new PromQueryResponse.ResultValue(1681824560, "10"));
+    values.add(new PromQueryResponse.ResultValue(1681824570, "10"));
+    values.add(new PromQueryResponse.ResultValue(1681824580, "10"));
+    values.add(new PromQueryResponse.ResultValue(1681824590, "10"));
+    values.add(new PromQueryResponse.ResultValue(1681824600, "10"));
     PromQueryResponse.MatrixResult resultItem = new PromQueryResponse.MatrixResult(metric, values);
 
     PromQueryResponse<PromQueryResponse.MatrixResult> response =

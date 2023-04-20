@@ -135,7 +135,7 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
   @lombok.EqualsAndHashCode(callSuper = false)
   public static class MatrixResult extends Result {
     private Map<String, String> metric; // XXX: The same one as the super, just to get the AllArgsConstructor work
-    private List<List<Object>> values;
+    private List<ResultValue> values;
   }
 
   // PromQueryResponse
