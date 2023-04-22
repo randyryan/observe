@@ -1,5 +1,6 @@
 package works.lifeops.observe.prom4j.builder;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,25 @@ public class PromQueryServiceIntegrationTest {
   @Test
   public void testBlocking() {
     promQueryService.testBlocking(Optional.empty());
+  }
+
+  @Test
+  public void queryBlocking() {
+    Instant now = Instant.now();
+
+    PromQuery query0 = PromQuery.builder()
+        .instant()
+        .metric("go_threads")
+        .time(now.toString())
+        .build();
+    PromQuery query1 = PromQuery.builder()
+        .instant()
+        .metric("go_threads")
+        .time(now.toString())
+        .build();
+
+    promQueryService.queryBlocking(query0);
+    promQueryService.queryBlocking(query1);
   }
 
 }

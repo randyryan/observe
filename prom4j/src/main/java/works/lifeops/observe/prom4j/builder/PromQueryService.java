@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriBuilderFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.Beta;
@@ -28,16 +28,16 @@ import reactor.core.publisher.Mono;
 public class PromQueryService {
   private final WebClient client;
   private final RestTemplate restTemplate;
-  private final UriBuilder uriBuilder;
+  private final UriBuilderFactory uriBuilderFactory;
   private final ObjectMapper objectMapper;
 
   private PromQueryService(@Qualifier("promQueryWebClient") final WebClient client,
                            @Qualifier("promQueryRestTemplate") final RestTemplate restTemplate,
-                           @Qualifier("promQueryUriBuilder") final UriBuilder uriBuilder,
+                           @Qualifier("promQueryUriBuilderFactory") final UriBuilderFactory uriBuilderFactory,
                            @Qualifier("promObjectMapper") final ObjectMapper objectMapper) {
     this.client = client;
     this.restTemplate = restTemplate;
-    this.uriBuilder = uriBuilder;
+    this.uriBuilderFactory = uriBuilderFactory;
     this.objectMapper = objectMapper;
   }
 
@@ -57,7 +57,7 @@ public class PromQueryService {
    * Query with blocking using the {@link RestTemplate} (Spring WebMVC).
    */
   public <R extends PromQueryResponse.Result> ResponseEntity<PromQueryResponse<R>> queryBlocking(PromQuery promQuery) {
-      URI uri = createUri(promQuery).apply(uriBuilder);
+      URI uri = createUri(promQuery).apply(uriBuilderFactory.builder());
       return restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
   }
 
@@ -66,5 +66,4 @@ public class PromQueryService {
         queryBlocking(query.orElse(TEST_QUERY));
     log.info("Test query blocking \"{}\" got response = {}", query.orElse(TEST_QUERY), response.getBody().toString());
   }
-
 }

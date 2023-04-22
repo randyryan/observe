@@ -34,6 +34,10 @@ public class PrometheusConfiguration {
   /**
    * For occasions when we want to obtain a request {@link java.net.URI} involves a PromQuery object, e.g. passing one
    * to RestTemplate.
+   *
+   * XXX: This is a wrong practice! UriBuilder instances should never get reused, always create a new instance for each
+   *      request, reusing the same instance for different requests will have query parameters residency.
+   *      See {@link WebClient.RequestBodyUriSpec#uri} which will always return a new instance.
    */
   @Bean("promQueryUriBuilder")
   UriBuilder promQueryUriBuilder() {
