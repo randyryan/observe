@@ -15,7 +15,6 @@ import com.google.common.collect.Lists;
 @Beta
 @SuppressWarnings({"serial", "unchecked"})
 public class PromQueryDeserializer extends StdDeserializer<PromQueryResponse<PromQueryResponse.Result>> {
-
   protected PromQueryDeserializer(Class<?> vc) {
     super(vc);
   }
@@ -51,7 +50,7 @@ public class PromQueryDeserializer extends StdDeserializer<PromQueryResponse<Pro
         JsonNode resultMetricNode = resultNode.get("metric");
         Map<String, String> metric = context.readTreeAsValue(resultMetricNode, Map.class);
         JsonNode resultValueNode = resultNode.get("value");
-        PromQueryResponse.ResultValue value = new PromQueryResponse.ResultValue(
+        PromQueryResponse.ResultValue value = PromQueryResponse.ResultValue.of(
             resultValueNode.get(0).asDouble(),
             resultValueNode.get(1).asText());
 
@@ -68,7 +67,7 @@ public class PromQueryDeserializer extends StdDeserializer<PromQueryResponse<Pro
         List<PromQueryResponse.ResultValue> values = Lists.newArrayList();
         for(Iterator<JsonNode> valueNodeIterator = resultValuesNode.elements(); valueNodeIterator.hasNext(); ) {
           JsonNode valueNode = valueNodeIterator.next();
-          PromQueryResponse.ResultValue value = new PromQueryResponse.ResultValue(
+          PromQueryResponse.ResultValue value = PromQueryResponse.ResultValue.of(
               valueNode.get(0).asDouble(),
               valueNode.get(1).asText());
           values.add(value);
@@ -80,5 +79,4 @@ public class PromQueryDeserializer extends StdDeserializer<PromQueryResponse<Pro
 
     return response;
   }
-
 }

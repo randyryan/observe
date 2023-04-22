@@ -3,10 +3,9 @@ package works.lifeops.observe.prom4j.builder;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -29,6 +28,10 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Service
 public class PromQueryService {
+  private static final PromQuery TEST_QUERY = PromQuery.builder()
+      .instant()
+      .metric("1")
+      .build();
 
   /**
    * Builds the MultiValueMap required by the UriComponentsBuilder.queryParams for building
@@ -55,17 +58,20 @@ public class PromQueryService {
         promQuery.is(PromQuery.QueryType.RANGE) ?
             "/query_range" :
             "";
-    log.info("PromQL \"{}\" -> {}", promQuery.toString(), "/api/v1" + path);
+    final String type = promQuery.is(PromQuery.QueryType.INSTANT) ?
+        "instant" :
+        promQuery.is(PromQuery.QueryType.RANGE) ?
+            "range" :
+            "unknown";
+    log.info("PromQL \"{}\" ({}) -> {}", promQuery.toString(), type, "/api/v1" + path);
 
     MultiValueMap<String, String> queryParams = multiValueMap(promQuery);
 
     return uriBuilder -> {
       if (promQuery.is(PromQuery.QueryType.INSTANT)) {
-        log.info("PromQuery is instant");
         promQuery.asInstant().time().ifPresent(time -> uriBuilder.queryParam("time", time));
       }
       if (promQuery.is(PromQuery.QueryType.RANGE)) {
-        log.info("PromQuery is range");
         promQuery.asRange().start().ifPresent(start -> uriBuilder.queryParam("start", start));
         promQuery.asRange().end().ifPresent(end -> uriBuilder.queryParam("end", end));
       }
@@ -91,23 +97,30 @@ public class PromQueryService {
     this.objectMapper = objectMapper;
   }
 
-  public void test(String query) {
-    PromQuery promQuery = PromQuery.builder()
-        .instant()
-        .metric(query)
-        .time("2023-04-15T00:00:00Z")
-        .build();
-
-    client.get().uri(queryUri(promQuery)).retrieve().bodyToMono(PromQueryResponse.class).subscribe(response ->
-        log.info("PromQL \"{}\" promQueryResponse = {}", query, response.toString()));
-  }
-
+  /**
+   * Query asynchronously using the {@link WebClient} (Spring WebFlux).
+   */
   public <R extends PromQueryResponse.Result> Mono<PromQueryResponse<R>> query(PromQuery promQuery) {
     return client.get().uri(queryUri(promQuery)).retrieve().bodyToMono(new ParameterizedTypeReference<>() {});
   }
 
-  public <R extends PromQueryResponse.Result> ResponseEntity<PromQueryResponse<R>> queryB(PromQuery promQuery) {
+  public void test(Optional<PromQuery> query) {
+    query(query.orElse(TEST_QUERY)).subscribe(response ->
+        log.info("Test query \"{}\" got response = {}", query.orElse(TEST_QUERY), response.toString()));
+  }
+
+  /**
+   * Query with blocking using the {@link RestTemplate} (Spring WebMVC).
+   */
+  public <R extends PromQueryResponse.Result> ResponseEntity<PromQueryResponse<R>> queryBlocking(PromQuery promQuery) {
       URI uri = queryUri(promQuery).apply(uriBuilder);
       return restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
   }
+
+  public void testBlocking(Optional<PromQuery> query) {
+    ResponseEntity<PromQueryResponse<PromQueryResponse.VectorResult>> response =
+        queryBlocking(query.orElse(TEST_QUERY));
+    log.info("Test query blocking \"{}\" got response = {}", query.orElse(TEST_QUERY), response.getBody().toString());
+  }
+
 }

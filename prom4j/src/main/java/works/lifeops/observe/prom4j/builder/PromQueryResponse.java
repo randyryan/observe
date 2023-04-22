@@ -118,16 +118,20 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
   @lombok.AllArgsConstructor
   @lombok.EqualsAndHashCode
   public static final class ResultValue {
-      private double time;
-      private String value;
+    public static ResultValue of(double time, String value) {
+      return new ResultValue(time, value);
+    }
+
+    private double time;
+    private String value;
   }
 
   @lombok.Data
   @lombok.AllArgsConstructor
   @lombok.EqualsAndHashCode(callSuper = false)
   public static class VectorResult extends Result {
-      private Map<String, String> metric; // XXX: The same one as the super, just to get the AllArgsConstructor work
-      private ResultValue value;
+    private Map<String, String> metric; // XXX: The same one as the super, just to get the AllArgsConstructor work
+    private ResultValue value;
   }
 
   @lombok.Data
@@ -150,5 +154,4 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
   public boolean hasResultOfType(PromQueryResponse.ResultType resultType) {
     return getData().getResultType().is(resultType);
   }
-
 }

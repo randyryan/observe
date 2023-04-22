@@ -46,7 +46,7 @@ public class PromQueryDeserializerTest {
     metric.put("__name__", "go_threads");
     metric.put("instance", "localhost:9090");
     metric.put("job", "prometheus");
-    PromQueryResponse.ResultValue value = new PromQueryResponse.ResultValue(1681824600, "10");
+    PromQueryResponse.ResultValue value = PromQueryResponse.ResultValue.of(1681824600, "10");
     PromQueryResponse.VectorResult resultItem = new PromQueryResponse.VectorResult(metric, value);
 
     Assert.assertEquals("response.status is properly deserialized",
@@ -76,13 +76,13 @@ public class PromQueryDeserializerTest {
     metric.put("instance", "localhost:9090");
     metric.put("job", "prometheus");
     List<PromQueryResponse.ResultValue> values = Lists.newArrayList();
-    values.add(new PromQueryResponse.ResultValue(1681824540, "10"));
-    values.add(new PromQueryResponse.ResultValue(1681824550, "10"));
-    values.add(new PromQueryResponse.ResultValue(1681824560, "10"));
-    values.add(new PromQueryResponse.ResultValue(1681824570, "10"));
-    values.add(new PromQueryResponse.ResultValue(1681824580, "10"));
-    values.add(new PromQueryResponse.ResultValue(1681824590, "10"));
-    values.add(new PromQueryResponse.ResultValue(1681824600, "10"));
+    values.add(PromQueryResponse.ResultValue.of(1681824540, "10"));
+    values.add(PromQueryResponse.ResultValue.of(1681824550, "10"));
+    values.add(PromQueryResponse.ResultValue.of(1681824560, "10"));
+    values.add(PromQueryResponse.ResultValue.of(1681824570, "10"));
+    values.add(PromQueryResponse.ResultValue.of(1681824580, "10"));
+    values.add(PromQueryResponse.ResultValue.of(1681824590, "10"));
+    values.add(PromQueryResponse.ResultValue.of(1681824600, "10"));
     PromQueryResponse.MatrixResult resultItem = new PromQueryResponse.MatrixResult(metric, values);
 
     PromQueryResponse<PromQueryResponse.MatrixResult> response =
