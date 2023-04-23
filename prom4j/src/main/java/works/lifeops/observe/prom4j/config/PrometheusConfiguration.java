@@ -16,6 +16,7 @@ import org.springframework.web.util.UriBuilderFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import works.lifeops.observe.prom4j.builder.PromQueryDeserializer;
 import works.lifeops.observe.prom4j.builder.PromQueryResponse;
@@ -83,6 +84,7 @@ public class PrometheusConfiguration {
 
     return JsonMapper.builder()
         .addModule(module)
+        .addModule(new JavaTimeModule())
         .build();
   }
 }

@@ -45,7 +45,7 @@ public class PromQueryResultMapperTest {
     Assert.assertEquals("Number of mapped results are equal", 1, vectorResults.size());
 
     PromQueryResultDto.VectorResultDto vectorResult = vectorResults.get(0);
-    Assert.assertEquals(response.getData().getResult().get(0).getValue().getTime(), vectorResult.getValue().getTime(), 0);
+    Assert.assertEquals(response.getData().getResult().get(0).getValue().getEpochDateTime(), vectorResult.getValue().getEpochDateTime(), 0);
     Assert.assertEquals("Value of mapped results are equal", response.getData().getResult().get(0).getValue().getValue(), vectorResult.getValue().getValue());
   }
 

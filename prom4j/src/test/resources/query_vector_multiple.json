@@ -1,0 +1,30 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {
+          "__name__": "go_threads",
+          "instance": "localhost:9090",
+          "job": "prometheus"
+        },
+        "value": [
+          1681824600.331,
+          "10"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "go_threads",
+          "instance": "localhost:9090",
+          "job": "eureka"
+        },
+        "value": [
+          1681824600.509,
+          "10"
+        ]
+      }
+    ]
+  }
+}

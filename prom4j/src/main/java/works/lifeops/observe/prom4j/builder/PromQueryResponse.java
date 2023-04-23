@@ -1,5 +1,8 @@
 package works.lifeops.observe.prom4j.builder;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 
@@ -118,12 +121,16 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
   @lombok.AllArgsConstructor
   @lombok.EqualsAndHashCode
   public static final class ResultValue {
-    public static ResultValue of(double time, String value) {
-      return new ResultValue(time, value);
+    public static ResultValue of(double epochDateTime, String value) {
+      return new ResultValue(epochDateTime, value);
     }
 
-    private double time;
+    private double epochDateTime;
     private String value;
+
+    public OffsetDateTime getOffsetDateTime() {
+      return OffsetDateTime.ofInstant(Instant.ofEpochMilli((long) (epochDateTime * 1000)), ZoneOffset.UTC);
+    }
   }
 
   @lombok.Data

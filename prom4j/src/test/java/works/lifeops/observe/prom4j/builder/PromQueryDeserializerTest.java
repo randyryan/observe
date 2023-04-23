@@ -25,7 +25,7 @@ public class PromQueryDeserializerTest {
   private InputStream queryMatrix;
 
   @BeforeEach
-  public void setUpClass() {
+  public void setUp() {
     SimpleModule module = new SimpleModule();
     module.addDeserializer(PromQueryResponse.class, new PromQueryDeserializer());
 
