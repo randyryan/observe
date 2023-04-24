@@ -46,7 +46,7 @@ public class PromQueriesTest {
         .time("2023-04-22T20:45:40+08:00")
         .build();
 
-    URI uri = PromQueries.createUri(query, false).apply(uriBuilder);
+    URI uri = PromQueries.createUri(query).apply(uriBuilder);
     Assert.assertEquals("URI is properly created", "/api/v1/query?query=go_threads&time=2023-04-22T20%3A45%3A40%2B08%3A00", uri.toString());
   }
 }

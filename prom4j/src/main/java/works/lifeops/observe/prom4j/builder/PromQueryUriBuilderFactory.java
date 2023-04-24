@@ -20,8 +20,22 @@ import org.springframework.web.util.UriUtils;
 import com.google.common.annotations.Beta;
 
 /**
- * The UriBuilderFactory implementation provides a specialized DefaultUriBuilder that allow the usage of "{" and "}" in
- * the query, these symbols present in the PromQL.
+ * A customized {@link DefaultUriBuilderFactory} that alters the way to encode the query params for PromQL.
+ * What this UriBuilderFactory and UriBuilder mainly do are encoding the values of each query parameters in Prometheus
+ * <a href="https://prometheus.io/docs/prometheus/latest/querying/api/">HTTP API</a>.
+ * <ul>
+ *     <li><b>query</b>: Encode '{' and '}' which Spring doesn't since Spring use them to denoting URI variables.</li>
+ *     <li><b>time</b>, <b>start</b>, and <b>end</b>: Encode RFC3339/ISO-8601 date time strings which Spring
+ *     ({@link UriUtils}) doesn't by design.</li>
+ * </ul>
+ * The idea is to encode query parameter values immediately at queryParam/queryParams methods, then pass the encoded as
+ * {@code true} at build method to indicate they are already encoded, rather than letting the original build-and-expand
+ * to encode.
+ * We also forgo URI variables expansion at {@link UriBuilder#build(Object...)} and {@link UriBuilder#build(Map)} at the
+ * moment to implement the customized encoding behavior, and it doesn't seem to be a use case with PromQuery, although
+ * it may be "restored".
+ *
+ * @author Li Wan
  */
 @Beta
 public class PromQueryUriBuilderFactory extends DefaultUriBuilderFactory implements UriBuilderFactory {

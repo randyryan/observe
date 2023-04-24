@@ -1,7 +1,6 @@
 package works.lifeops.observe.prom4j.builder;
 
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -65,33 +64,18 @@ public final class PromQueries {
    * @return {@link MultiValueMap} contains query parameters converted from the specified {@link PromQuery}.
    */
   public static MultiValueMap<String, String> toMultiValueMap(PromQuery promQuery) {
-    return toMultiValueMap(promQuery, false);
-  }
-
-  /**
-   * Creates a MultiValueMap object to pass to a {@link UriBuilder#queryParams(MultiValueMap)}, with query parameters
-   * converted from the provided {@link PromQuery} object.
-   *
-   * @param promQuery to convert to the query parameters and create the {@link MultiValueMap} from.
-   * @param encode whether to encode the query parameter values.
-   * @return {@link MultiValueMap} contains query parameters converted from the specified {@link PromQuery}.
-   */
-  public static MultiValueMap<String, String> toMultiValueMap(PromQuery promQuery, boolean encode) {
     Map<String, String> queryParameters = Maps.newHashMap();
     queryParameters.put("query", promQuery.toString());
     if (promQuery.is(PromQuery.QueryType.INSTANT)) {
       // Because we removed the encoding behavior from the PromQueryUriBuilderFactory.PromQueryUriBuilder.build, we need
       // to encode the query parameter values ourselves.
       promQuery.asInstant().time()
-          .map(encodeRfc3339(encode))
           .ifPresent(time -> queryParameters.put("time", time));
     }
     if (promQuery.is(PromQuery.QueryType.RANGE)) {
       promQuery.asRange().start()
-          .map(encodeRfc3339(encode))
           .ifPresent(start -> queryParameters.put("start", start));
       promQuery.asRange().end()
-          .map(encodeRfc3339(encode))
           .ifPresent(end -> queryParameters.put("end", end));
       // TODO: Support the "step" parameter for Range queries
     }
@@ -101,10 +85,6 @@ public final class PromQueries {
   }
 
   public static Function<UriBuilder, URI> createUri(PromQuery promQuery) {
-    return createUri(promQuery, false);
-  }
-
-  public static Function<UriBuilder, URI> createUri(PromQuery promQuery, boolean encode) {
     final String path = promQuery.is(PromQuery.QueryType.INSTANT) ?
         "/query" :
         promQuery.is(PromQuery.QueryType.RANGE) ?
@@ -115,12 +95,8 @@ public final class PromQueries {
 
     return uriBuilder -> uriBuilder
         .path(path)
-        .queryParams(toMultiValueMap(promQuery, encode))
+        .queryParams(toMultiValueMap(promQuery))
         .build();
-  }
-
-  private static Function<String, String> encodeRfc3339(boolean encode) {
-    return rfc3339 -> encode ? UriUtils.encode(rfc3339, Charset.defaultCharset()) : rfc3339;
   }
 
   /**
@@ -132,7 +108,6 @@ public final class PromQueries {
     MultiValueMap<String, String> result = new LinkedMultiValueMap<>(params.size());
     for (Map.Entry<String, List<String>> entry : params.entrySet()) {
       for (String value : entry.getValue()) {
-        
         result.add(entry.getKey(), PROM_QUERY_ESCAPER.escape(value));
       }
     }
