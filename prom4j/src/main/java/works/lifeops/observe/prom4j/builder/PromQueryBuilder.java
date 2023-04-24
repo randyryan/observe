@@ -1,6 +1,7 @@
 package works.lifeops.observe.prom4j.builder;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
@@ -85,7 +86,7 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
      * Let the duration to be the last step of building an instant query. Another thought: Label value builder.
      */
     public PromQuery.InstantQuery build() {
-      builder.duration = toString();
+      builder.duration = Optional.of(toString());
       return builder.build();
     }
 
@@ -136,7 +137,7 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
   }
 
   public static class InstantQueryBuilder extends PromQueryBuilder<InstantQueryBuilder, PromQuery.InstantQuery> {
-    private String time;
+    private Optional<String> time = Optional.empty();
     /**
      * TODO: Use {@link java.time.Duration} and {@link java.time.Period} to handle the following:
      *
@@ -148,18 +149,23 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
      * w - weeks - assuming a week has always 7d
      * y - years - assuming a year has always 365d
      */
-    private String duration;
+    private Optional<String> duration = Optional.empty();
 
     InstantQueryBuilder() {
       super(PromQuery.InstantQuery.class, PromQuery.QueryType.INSTANT);
     }
 
     public InstantQueryBuilder time(String rfc3339) {
+      this.time = Optional.ofNullable(rfc3339);
+      return this;
+    }
+
+    public InstantQueryBuilder time(Optional<String> rfc3339) {
       this.time = rfc3339;
       return this;
     }
 
-    public InstantQueryBuilder duration(String duration) {
+    public InstantQueryBuilder duration(Optional<String> duration) {
       this.duration = duration;
       return this;
     }
@@ -180,19 +186,29 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
   }
 
   public static class RangeQueryBuilder extends PromQueryBuilder<RangeQueryBuilder, PromQuery.RangeQuery> {
-    private String start;
-    private String end;
+    private Optional<String> start = Optional.empty();
+    private Optional<String> end = Optional.empty();
 
     RangeQueryBuilder() {
       super(PromQuery.RangeQuery.class, PromQuery.QueryType.RANGE);
     }
 
     public RangeQueryBuilder start(String rfc3339) {
+      this.start = Optional.ofNullable(rfc3339);
+      return this;
+    }
+
+    public RangeQueryBuilder start(Optional<String> rfc3339) {
       this.start = rfc3339;
       return this;
     }
 
     public RangeQueryBuilder end(String rfc3339) {
+      this.end = Optional.ofNullable(rfc3339);
+      return this;
+    }
+
+    public RangeQueryBuilder end(Optional<String> rfc3339) {
       this.end = rfc3339;
       return this;
     }

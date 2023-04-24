@@ -15,16 +15,32 @@ import org.springframework.web.util.UriUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import com.google.common.escape.Escaper;
+import com.google.common.escape.Escapers;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
+/**
+ * PromQuery utilities.
+ *
+ * @author Li Wan
+ */
 public final class PromQueries {
   private PromQueries() {}
 
   public static final PromQuery TEST_QUERY = PromQuery.builder()
       .instant()
       .metric("1")
+      .build();
+
+  public static final Escaper PROM_QUERY_ESCAPER = Escapers.builder()
+      .addEscape('[', "%5B")
+      .addEscape(']', "%5D")
+      .addEscape('{', "%7B")
+      .addEscape('}', "%7D")
+      .addEscape('|', "%7C")
+      .addEscape('"', "%22")
+      .addEscape('+', "%2B")
+      .addEscape(':', "%3A")
+      .addEscape('=', "%3D")
       .build();
 
   /**
@@ -105,5 +121,21 @@ public final class PromQueries {
 
   private static Function<String, String> encodeRfc3339(boolean encode) {
     return rfc3339 -> encode ? UriUtils.encode(rfc3339, Charset.defaultCharset()) : rfc3339;
+  }
+
+  /**
+   * The {@link UriUtils#encodeQueryParams(MultiValueMap)} doesn't encode ':' and '+' into {@code %3A} and
+   * {@code %2B"} respectively by design, but they should be encoded to send to the Prometheus query API, so we have
+   * to implement our own encodeQueryParams.
+   */
+  public static MultiValueMap<String, String> encodeQueryParams(MultiValueMap<String, String> params) {
+    MultiValueMap<String, String> result = new LinkedMultiValueMap<>(params.size());
+    for (Map.Entry<String, List<String>> entry : params.entrySet()) {
+      for (String value : entry.getValue()) {
+        
+        result.add(entry.getKey(), PROM_QUERY_ESCAPER.escape(value));
+      }
+    }
+    return result;
   }
 }

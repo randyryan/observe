@@ -7,7 +7,7 @@ import com.google.common.base.Strings;
 
 /**
  * Holds a piece of simple PromQL.
- * 
+ *
  * @author Li Wan
  */
 @Beta
@@ -105,8 +105,8 @@ public abstract class PromQuery {
   }
 
   public static final class InstantQuery extends PromQuery {
-    private String time;
-    private String duration;
+    private Optional<String> time;
+    private Optional<String> duration;
 
     InstantQuery(String metric) {
       super(QueryType.INSTANT, metric);
@@ -116,22 +116,22 @@ public abstract class PromQuery {
       super(QueryType.INSTANT, metric, selector);
     }
 
-    InstantQuery time(String time) {
+    InstantQuery time(Optional<String> time) {
       this.time = time;
       return this;
     }
 
     public Optional<String> time() {
-      return Optional.ofNullable(time);
+      return time;
     }
 
-    InstantQuery duration(String duration) {
+    InstantQuery duration(Optional<String> duration) {
       this.duration = duration;
       return this;
     }
 
     public Optional<String> duration() {
-      return Optional.ofNullable(duration);
+      return duration;
     }
 
     // Object overrides
@@ -140,18 +140,18 @@ public abstract class PromQuery {
     public String toString() {
       StringBuilder sb = new StringBuilder();
       sb.append(super.toString());
-      if (!Strings.isNullOrEmpty(duration)) {
+      duration.ifPresent(d -> {
         sb.append('[');
-        sb.append(duration);
+        sb.append(d);
         sb.append(']');
-      }
+      });
       return sb.toString();
     }
   }
 
   public static final class RangeQuery extends PromQuery {
-    private String start;
-    private String end;
+    private Optional<String> start;
+    private Optional<String> end;
 
     RangeQuery(String metric) {
       super(QueryType.RANGE, metric);
@@ -161,22 +161,22 @@ public abstract class PromQuery {
       super(QueryType.RANGE, metric, selector);
     }
 
-    RangeQuery start(String start) {
+    RangeQuery start(Optional<String> start) {
       this.start = start;
       return this;
     }
 
     public Optional<String> start() {
-      return Optional.ofNullable(start);
+      return start;
     }
 
-    RangeQuery end(String end) {
+    RangeQuery end(Optional<String> end) {
       this.end = end;
       return this;
     }
 
     public Optional<String> end() {
-      return Optional.ofNullable(end);
+      return end;
     }
   }
 }

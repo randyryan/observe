@@ -189,8 +189,7 @@ public class PromQueryUriBuilderFactory extends DefaultUriBuilderFactory impleme
     @Override
     public UriBuilder queryParams(MultiValueMap<String, String> params) {
       // XXX: Modified behavior, added encoding
-      this.uriComponentsBuilder.queryParams(UriUtils.encodeQueryParams(params)); // The "2023-04-22T20:45:40+08:00"
-      // doesn't get encoded into "2023-04-22T20%3A45%3A40%2B08%3A00", there must be some problem with UriUtils.
+      this.uriComponentsBuilder.queryParams(PromQueries.encodeQueryParams(params));
       return this;
     }
 
