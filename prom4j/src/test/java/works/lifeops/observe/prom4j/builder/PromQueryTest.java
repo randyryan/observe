@@ -2,81 +2,96 @@ package works.lifeops.observe.prom4j.builder;
 
 import static works.lifeops.observe.prom4j.builder.PromQueryBuilder.value;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class PromQueryTest {
+  private static final String METRIC_NAME = "go_threads";
+
   @Test
-  public void testQueryType() {
+  @DisplayName("PromQuery.type and PromQuery.is")
+  public void instantQueryType() {
     PromQuery query = PromQuery.builder()
         .instant()
         .build();
 
-    Assert.assertEquals("Query type is \"instant\"", PromQuery.QueryType.INSTANT, query.type);
-    Assert.assertTrue("Query is returns true on \"instant\"", query.is(PromQuery.QueryType.INSTANT));
-    Assert.assertFalse("Query is returns false on \"range\"", query.is(PromQuery.QueryType.RANGE));
+    Assertions.assertEquals(PromQuery.QueryType.INSTANT, query.type, "PromQuery type is \"INSTANT\"");
+    Assertions.assertTrue(query.is(PromQuery.QueryType.INSTANT), "PromQuery is returns true on \"INSTANT\"");
+    Assertions.assertFalse(query.is(PromQuery.QueryType.RANGE), "PromQuery is returns false on \"RANGE\"");
   }
 
   @Test
-  public void testOnlyMetric() {
+  public void rangeQueryType() {
     PromQuery query = PromQuery.builder()
-        .instant()
-        .metric("go_threads")
+        .range()
         .build();
 
-    Assert.assertEquals("Only metric is equal", "go_threads", query.toString());
+    Assertions.assertEquals(PromQuery.QueryType.RANGE, query.type, "PromQuery type is \"RANGE\"");
+    Assertions.assertTrue(query.is(PromQuery.QueryType.RANGE), "PromQuery is returns true on \"RANGE\"");
+    Assertions.assertFalse(query.is(PromQuery.QueryType.INSTANT), "PromQuery is returns false on \"INSTANT\"");
   }
 
   @Test
-  public void testOnlySelector() {
+  public void metricOnly() {
+    PromQuery query = PromQuery.builder()
+        .instant()
+        .metric(METRIC_NAME)
+        .build();
+
+    Assertions.assertEquals("go_threads", query.toString(), "PromQuery metric (only) is properly built");
+  }
+
+  @Test
+  public void labelOnly() {
     PromQuery query = PromQuery.builder()
         .instant()
         .label("job").equals("prometheus")
         .build();
 
-    Assert.assertEquals("Only selectors is equal", "{job=\"prometheus\"}", query.toString());
+    Assertions.assertEquals("{job=\"prometheus\"}", query.toString(), "PromQuery label (only) is properly built");
   }
 
   @Test
-  public void testBoth() {
+  public void metricAndLabel() {
     PromQuery query = PromQuery.builder()
         .instant()
         .metric("go_threads")
         .label("job").equals("prometheus")
         .build();
 
-    Assert.assertEquals("Both metric and selectors is equal", "go_threads{job=\"prometheus\"}", query.toString());
+    Assertions.assertEquals("go_threads{job=\"prometheus\"}", query.toString(), "PromQuery metric and label is properly built");
   }
 
   @Test
-  public void testMultipleLabels() {
+  public void multipleLabels() {
     PromQuery query = PromQuery.builder()
         .instant()
         .label("instance").equals("localhost:9090")
         .label("job").equals("prometheus")
         .build();
 
-    Assert.assertEquals("Multiple labels is equal", "{instance=\"localhost:9090\",job=\"prometheus\"}", query.toString());
+    Assertions.assertEquals("{instance=\"localhost:9090\",job=\"prometheus\"}", query.toString(), "PromQuery multiple labels are properly built");
   }
 
   @Test
-  public void testMultipleLabelValues() {
+  public void multipleLabelValuesOr() {
     PromQuery query = PromQuery.builder()
         .instant()
         .label("job").equals(value("prometheus").or("eureka"))
         .build();
 
-    Assert.assertEquals("Multiple label values is equal", "{job=~\"prometheus|eureka\"}", query.toString());
+    Assertions.assertEquals("{job=~\"prometheus|eureka\"}", query.toString(), "PromQuery multiple labels or relationship is properly build");
   }
 
   @Test
-  public void testDuration() {
+  public void duration() {
     PromQuery query = PromQuery.builder()
             .instant()
             .metric("go_threads")
             .duration().m(1).s(30)
             .build();
 
-    Assert.assertEquals("Duration is properly built", "go_threads[1m30s]", query.toString());
+    Assertions.assertEquals("go_threads[1m30s]", query.toString(), "PromQuery duration is properly built.");
   }
 }
