@@ -50,7 +50,7 @@ public class PromQueryDeserializer extends StdDeserializer<PromQueryResponse<Pro
         JsonNode resultMetricNode = resultNode.get("metric");
         Map<String, String> metric = context.readTreeAsValue(resultMetricNode, Map.class);
         JsonNode resultValueNode = resultNode.get("value");
-        PromQueryResponse.ResultValue value = PromQueryResponse.ResultValue.of(
+        PromQueryResponse.ResultValue<PromQueryResponse.VectorResult> value = PromQueryResponse.ResultValue.of(
             resultValueNode.get(0).asDouble(),
             resultValueNode.get(1).asText());
 
@@ -64,10 +64,10 @@ public class PromQueryDeserializer extends StdDeserializer<PromQueryResponse<Pro
         JsonNode resultMetricNode = resultNode.get("metric");
         Map<String, String> metric = context.readTreeAsValue(resultMetricNode, Map.class);
         JsonNode resultValuesNode = resultNode.get("values");
-        List<PromQueryResponse.ResultValue> values = Lists.newArrayList();
+        List<PromQueryResponse.ResultValue<PromQueryResponse.MatrixResult>> values = Lists.newArrayList();
         for(Iterator<JsonNode> valueNodeIterator = resultValuesNode.elements(); valueNodeIterator.hasNext(); ) {
           JsonNode valueNode = valueNodeIterator.next();
-          PromQueryResponse.ResultValue value = PromQueryResponse.ResultValue.of(
+          PromQueryResponse.ResultValue<PromQueryResponse.MatrixResult> value = PromQueryResponse.ResultValue.of(
               valueNode.get(0).asDouble(),
               valueNode.get(1).asText());
           values.add(value);

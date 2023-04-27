@@ -118,15 +118,36 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
    * Maps the "value" under the "result" node.
    */
   @lombok.Data
-  @lombok.AllArgsConstructor
   @lombok.EqualsAndHashCode
-  public static final class ResultValue {
-    public static ResultValue of(double epochDateTime, String value) {
-      return new ResultValue(epochDateTime, value);
+  public static final class ResultValue<R extends Result> {
+    public static <R extends Result> ResultValue<R> of(double epochDateTime, String value) {
+      return new ResultValue<R>(epochDateTime, value);
     }
 
+    private R result;
     private double epochDateTime;
     private String value;
+
+    private ResultValue(double epochDateTime, String value) {
+      this.epochDateTime = epochDateTime;
+      this.value = value;
+    }
+
+    /**
+     * Returns the {@link PromQueryResponse.Result} that owns this value. Used when processing stream of values for
+     * scenarios like converting them into a chart's data where it needs to add the metrics information, we can use
+     * this method to reference the result that this value belongs to.
+     *
+     * @return the {@link PromQueryResponse.Result} that owns this value.
+     */
+    public R getResult() {
+      return result;
+    }
+
+    public ResultValue<R> setResult(R result) {
+      this.result = result;
+      return this;
+    }
 
     public OffsetDateTime getOffsetDateTime() {
       return OffsetDateTime.ofInstant(Instant.ofEpochMilli((long) (epochDateTime * 1000)), ZoneOffset.UTC);
@@ -134,19 +155,31 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
   }
 
   @lombok.Data
-  @lombok.AllArgsConstructor
   @lombok.EqualsAndHashCode(callSuper = false)
   public static class VectorResult extends Result {
     private Map<String, String> metric; // XXX: The same one as the super, just to get the AllArgsConstructor work
-    private ResultValue value;
+    private ResultValue<VectorResult> value;
+
+    VectorResult(Map<String, String> metric, ResultValue<VectorResult> value) {
+      this.metric = metric;
+      this.value = value.setResult(this); // We can allow the creation of Result first then invoke setResult
+      // at each Values' creation at deserialization to avoid setting the Result here. This way the Results
+      // class can remain using @AllArgsConstructor
+    }
   }
 
   @lombok.Data
-  @lombok.AllArgsConstructor
   @lombok.EqualsAndHashCode(callSuper = false)
   public static class MatrixResult extends Result {
     private Map<String, String> metric; // XXX: The same one as the super, just to get the AllArgsConstructor work
-    private List<ResultValue> values;
+    private List<ResultValue<MatrixResult>> values;
+
+    MatrixResult(Map<String, String> metric, List<ResultValue<MatrixResult>> values) {
+      this.metric = metric;
+      this.values = values;
+      this.values.forEach(value -> value.setResult(this)); // The same as the VectorResult but with more reason
+      // since this even need to set each value individually.
+    }
   }
 
   // PromQueryResponse
