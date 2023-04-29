@@ -115,11 +115,12 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
   }
 
   /**
-   * Maps the "value" under the "result" node.
+   * Maps the "value" under the "result" node. This can be a single sample within a time-series.
    */
   @lombok.Data
+  @lombok.ToString(exclude = "result") // When included, it will cause a circular invocation
   @lombok.EqualsAndHashCode
-  public static final class ResultValue<R extends Result> {
+  public static class ResultValue<R extends Result> {
     public static <R extends Result> ResultValue<R> of(double epochDateTime, String value) {
       return new ResultValue<R>(epochDateTime, value);
     }
@@ -128,7 +129,7 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
     private double epochDateTime;
     private String value;
 
-    private ResultValue(double epochDateTime, String value) {
+    protected ResultValue(double epochDateTime, String value) {
       this.epochDateTime = epochDateTime;
       this.value = value;
     }
@@ -163,12 +164,13 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
     VectorResult(Map<String, String> metric, ResultValue<VectorResult> value) {
       this.metric = metric;
       this.value = value.setResult(this); // We can allow the creation of Result first then invoke setResult
-      // at each Values' creation at deserialization to avoid setting the Result here. This way the Results
-      // class can remain using @AllArgsConstructor
+      // at each Values' creation at deserialization to avoid setting the Result here. This way the Result concrete
+      // classes can back to annotated by @AllArgsConstructor
     }
   }
 
   @lombok.Data
+  @lombok.ToString
   @lombok.EqualsAndHashCode(callSuper = false)
   public static class MatrixResult extends Result {
     private Map<String, String> metric; // XXX: The same one as the super, just to get the AllArgsConstructor work

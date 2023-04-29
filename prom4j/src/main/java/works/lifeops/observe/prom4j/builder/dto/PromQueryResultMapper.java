@@ -9,27 +9,37 @@ import org.mapstruct.factory.Mappers;
 
 import works.lifeops.observe.prom4j.builder.PromQueryResponse;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface PromQueryResultMapper {
+
   PromQueryResultMapper INSTANCE = Mappers.getMapper(PromQueryResultMapper.class);
 
-  @Mapping(expression = "java(result.getMetric().get(\"name\"))", target="name")
-  @Mapping(source = "metric", target = "labels")
-  PromQueryResultDto.VectorResultDto vectorResultToDto(PromQueryResponse.VectorResult result);
+  @SuppressWarnings("rawtypes")
+  PromQueryResult.Sample resultValueToSample(PromQueryResponse.ResultValue resultValue);
 
-  default List<PromQueryResultDto.VectorResultDto> vectorResponseToResultDtos(PromQueryResponse<PromQueryResponse.VectorResult> response) {
+  @Mapping(expression = "java(result.getMetric().get(\"name\"))", target = "name")
+  @Mapping(expression = "java(result.getMetric().get(\"job\"))", target = "job")
+  @Mapping(source = "metric", target = "labels")
+  @Mapping(source = "value", target = "sample")
+  PromQueryResult.SampleResult vectorResultToSampleResult(PromQueryResponse.VectorResult result);
+
+
+  default List<PromQueryResult.SampleResult> vectorResponseToSampleResult(PromQueryResponse<PromQueryResponse.VectorResult> response) {
     return response.getData().getResult().stream()
-        .map(this::vectorResultToDto)
+        .map(this::vectorResultToSampleResult)
         .collect(Collectors.toList());
   }
 
   @Mapping(expression = "java(result.getMetric().get(\"name\"))", target="name")
+  @Mapping(expression = "java(result.getMetric().get(\"job\"))", target = "job")
   @Mapping(source = "metric", target = "labels")
-  PromQueryResultDto.MatrixResultDto matrixResultToDto(PromQueryResponse.MatrixResult result);
+  @Mapping(source = "values", target = "samples")
+  PromQueryResult.TimeSeriesResult matrixResultToTimeSeriesResult(PromQueryResponse.MatrixResult result);
 
-  default List<PromQueryResultDto.MatrixResultDto> matrixResponseToResultDtos(PromQueryResponse<PromQueryResponse.MatrixResult> response) {
+  default List<PromQueryResult.TimeSeriesResult> matrixResponseToTimeSeriesResult(PromQueryResponse<PromQueryResponse.MatrixResult> response) {
     return response.getData().getResult().stream()
-        .map(this::matrixResultToDto)
+        .map(this::matrixResultToTimeSeriesResult)
         .collect(Collectors.toList());
   }
 }
+

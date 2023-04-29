@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import works.lifeops.observe.prom4j.builder.PromQueryDeserializer;
 import works.lifeops.observe.prom4j.builder.PromQueryResponse;
 
-public class PromQueryResultMapperTest {
+public class PromQueryResponseMapperTest {
 
   private ObjectMapper objectMapper;
 
@@ -41,10 +41,10 @@ public class PromQueryResultMapperTest {
     PromQueryResponse<PromQueryResponse.VectorResult> response =
         objectMapper.readValue(queryVector, new TypeReference<PromQueryResponse<PromQueryResponse.VectorResult>>() {});
 
-    List<PromQueryResultDto.VectorResultDto> vectorResults = PromQueryResultMapper.INSTANCE.vectorResponseToResultDtos(response);
+    List<PromQueryResponseDto.VectorResultDto> vectorResults = PromQueryResponseMapper.INSTANCE.vectorResponseToDto(response);
     Assert.assertEquals("Number of mapped results are equal", 1, vectorResults.size());
 
-    PromQueryResultDto.VectorResultDto vectorResult = vectorResults.get(0);
+    PromQueryResponseDto.VectorResultDto vectorResult = vectorResults.get(0);
     Assert.assertEquals(response.getData().getResult().get(0).getValue().getEpochDateTime(), vectorResult.getValue().getEpochDateTime(), 0);
     Assert.assertEquals("Value of mapped results are equal", response.getData().getResult().get(0).getValue().getValue(), vectorResult.getValue().getValue());
   }
@@ -54,13 +54,13 @@ public class PromQueryResultMapperTest {
     PromQueryResponse<PromQueryResponse.MatrixResult> response =
         objectMapper.readValue(queryMatrix, new TypeReference<PromQueryResponse<PromQueryResponse.MatrixResult>>() {});
 
-    List<PromQueryResultDto.MatrixResultDto> matrixResults = PromQueryResultMapper.INSTANCE.matrixResponseToResultDtos(response);
+    List<PromQueryResponseDto.MatrixResultDto> matrixResults = PromQueryResponseMapper.INSTANCE.matrixResponseToDto(response);
     Assert.assertEquals("Number of mapped results are equal", 1, matrixResults.size());
 
-    PromQueryResultDto.MatrixResultDto matrixResult = matrixResults.get(0);
+    PromQueryResponseDto.MatrixResultDto matrixResult = matrixResults.get(0);
     for (int i = 0; i < response.getData().getResult().get(0).getValues().size(); i++) {
-      PromQueryResponse.ResultValue responseValue = response.getData().getResult().get(0).getValues().get(i);
-      PromQueryResponse.ResultValue dtoValue = matrixResult.getValues().get(i);
+      PromQueryResponse.ResultValue<PromQueryResponse.MatrixResult> responseValue = response.getData().getResult().get(0).getValues().get(i);
+      PromQueryResponse.ResultValue<PromQueryResponse.MatrixResult> dtoValue = matrixResult.getValues().get(i);
       Assert.assertEquals("ResultValues are equal", responseValue, dtoValue);
     }
   }
