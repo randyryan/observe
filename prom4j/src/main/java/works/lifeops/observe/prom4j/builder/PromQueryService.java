@@ -31,10 +31,10 @@ public class PromQueryService {
   private final UriBuilderFactory uriBuilderFactory;
   private final ObjectMapper objectMapper;
 
-  private PromQueryService(@Qualifier("promQueryWebClient") final WebClient client,
-                           @Qualifier("promQueryRestTemplate") final RestTemplate restTemplate,
-                           @Qualifier("promQueryUriBuilderFactory") final UriBuilderFactory uriBuilderFactory,
-                           @Qualifier("promObjectMapper") final ObjectMapper objectMapper) {
+  private PromQueryService(@Qualifier("prom4jWebClient") final WebClient client,
+                           @Qualifier("prom4jRestTemplate") final RestTemplate restTemplate,
+                           @Qualifier("prom4jUriBuilderFactory") final UriBuilderFactory uriBuilderFactory,
+                           @Qualifier("prom4jObjectMapper") final ObjectMapper objectMapper) {
     this.client = client;
     this.restTemplate = restTemplate;
     this.uriBuilderFactory = uriBuilderFactory;

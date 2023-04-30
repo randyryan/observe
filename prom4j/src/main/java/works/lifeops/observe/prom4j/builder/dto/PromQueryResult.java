@@ -1,9 +1,9 @@
 package works.lifeops.observe.prom4j.builder.dto;
 
-import works.lifeops.observe.prom4j.builder.PromQueryResponse;
-
 import java.util.List;
 import java.util.Map;
+
+import works.lifeops.observe.prom4j.builder.PromQueryResponse;
 
 /**
  * A more end-user form of {@link PromQueryResponseDto}. This class could be a "template" of generated end-user types.
