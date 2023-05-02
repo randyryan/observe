@@ -2,5 +2,13 @@ prometheus:
   server:
     base-uri: http://prometheus:9090
 
+# Used for overriding the base path of the API defined in the OpenAPI Specification document. Note that the hierarchy
+# between the "openapi" and "base-path" must be the same as the value of "title" in:
+#     https://openapi-generator.tech/docs/generators/spring/#config-options
+# when the service API controller stubs are generated with OpenAPI Generator (Spring).
+openapi:
+  service:
+    base-path: api/v1
+
 server:
   port: 8090

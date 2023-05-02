@@ -1,0 +1,61 @@
+plugins {
+    id 'java-library'
+    id 'org.openapi.generator' version '5.3.1'
+    id 'com.github.node-gradle.node' version '3.5.0'
+}
+
+group = 'works.lifeops.observe'
+version = '0.0.1-SNAPSHOT'
+
+sourceCompatibility = '11'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir file("${buildDir}/generated/openapi/src/main/java")
+        }
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.7.10'
+    implementation 'io.springfox:springfox-swagger2:3.0.0'
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+}
+
+task spotGenerate(type: NpxTask) {
+    dependsOn npmInstall
+
+    command = '@airtasker/spot'
+    args = [
+            'generate',
+            '--contract', 'src/main/api/api.ts',
+            '--generator', 'openapi3',
+            '--language', 'yaml',
+            '--out', "${buildDir}/api/"
+    ]
+}
+
+openApiGenerate {
+    generatorName = 'spring'
+    inputSpec = "${buildDir}/api/api.yml".toString()
+    outputDir = "${buildDir}/generated/openapi".toString()
+    templateDir = "${projectDir}/src/main/template/spring".toString()
+    apiPackage = 'works.lifeops.observe.prom4j.api'
+    modelPackage = 'works.lifeops.observe.prom4j.api.dto'
+    modelNameSuffix = 'Dto'
+    apiFilesConstrainedTo = ['']
+    modelFilesConstrainedTo = ['']
+    supportingFilesConstrainedTo = ['ApiUtil.java']
+    configOptions = [delegatePattern: 'true', title: 'service']
+    validateSpec = true
+    importMappings = [Problem:'org.zalando.problem.Problem']
+}
+
+tasks.openApiGenerate.dependsOn tasks.spotGenerate
+tasks.compileJava.dependsOn tasks.openApiGenerate
