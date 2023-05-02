@@ -1,5 +1,5 @@
 import { body, endpoint, response } from "@airtasker/spot";
-import { ChartSample, TimeSeries } from "./results";
+import { ChartSample, Sample, TimeSeries } from "./results";
 
 @endpoint({
   method: 'GET',
@@ -11,7 +11,7 @@ class GetGoThreads {
   @response({ status: 200 })
   successResponse(
     @body
-    body: TimeSeries[]
+    body: Sample
   ) { }
 }
 
