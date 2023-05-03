@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,13 +28,12 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.ser.OffsetDateTimeSerializer;
 
-import lombok.extern.slf4j.Slf4j;
 import works.lifeops.observe.prom4j.builder.PromQueryDeserializer;
 import works.lifeops.observe.prom4j.builder.PromQueryResponse;
 import works.lifeops.observe.prom4j.builder.PromQueryUriBuilderFactory;
 
-@Slf4j
 @EnableWebMvc
 @Configuration
 public class Prom4jConfiguration implements WebMvcConfigurer {
@@ -67,6 +67,17 @@ public class Prom4jConfiguration implements WebMvcConfigurer {
         .build();
   }
 
+  @Override
+  public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    converters.add(prom4jMessageConverter());
+  }
+
+//  When using the Jackson2ObjectMapperBuilder, uncomment this bean.
+//  @Bean
+//  public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
+//      return builder -> builder.serializers(OffsetDateTimeSerializer.INSTANCE);
+//  }
+
   @Bean("prom4jWebClient")
   WebClient prom4jWebClient() {
     ObjectMapper objectMapper = prom4jObjectMapper();
@@ -80,11 +91,6 @@ public class Prom4jConfiguration implements WebMvcConfigurer {
               new Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON));
         })
         .build();
-  }
-
-  @Override
-  public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-    converters.add(prom4jMessageConverter());
   }
 
   /**
@@ -108,6 +114,8 @@ public class Prom4jConfiguration implements WebMvcConfigurer {
       module.addDeserializer(PromQueryResponse.class, new PromQueryDeserializer());
       // Unfortunately the JavaTimeModule, who has a serializer for OffsetDateTime, didn't work.
       module.addSerializer(new StdSerializer<OffsetDateTime>(OffsetDateTime.class) {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public void serialize(OffsetDateTime value, JsonGenerator gen, SerializerProvider provider) throws IOException {
           gen.writeString(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(value));

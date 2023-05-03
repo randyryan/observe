@@ -152,6 +152,7 @@ public abstract class PromQuery {
   public static final class RangeQuery extends PromQuery {
     private Optional<String> start;
     private Optional<String> end;
+    private Optional<Integer> step;
 
     RangeQuery(String metric) {
       super(QueryType.RANGE, metric);
@@ -177,6 +178,15 @@ public abstract class PromQuery {
 
     public Optional<String> end() {
       return end;
+    }
+
+    RangeQuery step(Optional<Integer> step) {
+      this.step = step;
+      return this;
+    }
+
+    public Optional<Integer> step() {
+      return step;
     }
   }
 }

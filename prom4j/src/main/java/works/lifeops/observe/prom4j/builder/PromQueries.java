@@ -77,7 +77,8 @@ public final class PromQueries {
           .ifPresent(start -> queryParameters.put("start", start));
       promQuery.asRange().end()
           .ifPresent(end -> queryParameters.put("end", end));
-      // TODO: Support the "step" parameter for Range queries
+      promQuery.asRange().step()
+          .ifPresent(step -> queryParameters.put("step", step.toString()));
     }
     // TODO: Support the "timeout" parameter for both Instant and Range queries
 

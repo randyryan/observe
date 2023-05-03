@@ -188,6 +188,7 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
   public static class RangeQueryBuilder extends PromQueryBuilder<RangeQueryBuilder, PromQuery.RangeQuery> {
     private Optional<String> start = Optional.empty();
     private Optional<String> end = Optional.empty();
+    private Optional<Integer> step = Optional.empty();
 
     RangeQueryBuilder() {
       super(PromQuery.RangeQuery.class, PromQuery.QueryType.RANGE);
@@ -213,6 +214,16 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
       return this;
     }
 
+    public RangeQueryBuilder step(int step) {
+      this.step = Optional.of(step);
+      return this;
+    }
+
+    public RangeQueryBuilder step(Optional<Integer> step) {
+      this.step = step;
+      return this;
+    }
+
     @Override
     public PromQuery.RangeQuery build() {
       String selector = super.criteria.isEmpty() ?
@@ -220,7 +231,8 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
           String.format("{%s}", String.join(",", super.criteria));
       return new PromQuery.RangeQuery(super.metric, selector)
           .start(start)
-          .end(end);
+          .end(end)
+          .step(step);
     }
   }
 
