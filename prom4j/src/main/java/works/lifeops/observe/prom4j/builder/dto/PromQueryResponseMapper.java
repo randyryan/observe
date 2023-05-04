@@ -14,7 +14,7 @@ import works.lifeops.observe.prom4j.builder.PromQueryResponse;
 public interface PromQueryResponseMapper {
   PromQueryResponseMapper INSTANCE = Mappers.getMapper(PromQueryResponseMapper.class);
 
-  @Mapping(expression = "java(result.getMetric().get(\"name\"))", target="name")
+  @Mapping(expression = "java(result.getMetric().get(\"__name__\"))", target="name")
   @Mapping(source = "metric", target = "labels")
   PromQueryResponseDto.VectorResultDto vectorResultToDto(PromQueryResponse.VectorResult result);
 
@@ -24,7 +24,7 @@ public interface PromQueryResponseMapper {
         .collect(Collectors.toList());
   }
 
-  @Mapping(expression = "java(result.getMetric().get(\"name\"))", target="name")
+  @Mapping(expression = "java(result.getMetric().get(\"__name__\"))", target="name")
   @Mapping(source = "metric", target = "labels")
   PromQueryResponseDto.MatrixResultDto matrixResultToDto(PromQueryResponse.MatrixResult result);
 
