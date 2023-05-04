@@ -3,9 +3,12 @@ package works.lifeops.observe.prom4j.builder.dto;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -16,7 +19,23 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import works.lifeops.observe.prom4j.builder.PromQueryDeserializer;
 import works.lifeops.observe.prom4j.builder.PromQueryResponse;
 
+/**
+ * The {@link PromQueryResponse} is a Java representation of JSON in the response body from the Prometheus query API,
+ * it is a type for the querying parts and is not very suitable for us to write logics with. Therefore, 2 extra types
+ * are introduced for various situations: {@link PromQueryResponseDto} represents only the "data.result" node of the
+ * response intended for scenarios like transmitting the responses between microservices, whereas the
+ * {@link PromQueryResult} is intended for direct use such as analyzing and returning them in a REST resource.<br>
+ * Both types can be directly mapped from {@link PromQueryResponse} by their respective mapper.
+ *
+ * This test tests the mapping from {@link PromQueryResponse} to {@link PromQueryResponseDto}.
+ *
+ * @author Li Wan
+ */
 public class PromQueryResponseMapperTest {
+  private static final TypeReference<PromQueryResponse<PromQueryResponse.VectorResult>> VECTOR_TYPE_REF =
+      new TypeReference<PromQueryResponse<PromQueryResponse.VectorResult>>() {};
+  private static final TypeReference<PromQueryResponse<PromQueryResponse.MatrixResult>> MATRIX_TYPE_REF =
+      new TypeReference<PromQueryResponse<PromQueryResponse.MatrixResult>>() {};
 
   private ObjectMapper objectMapper;
 
@@ -37,27 +56,65 @@ public class PromQueryResponseMapperTest {
   }
 
   @Test
-  public void testMappingVectorResult() throws IOException {
-    PromQueryResponse<PromQueryResponse.VectorResult> response =
-        objectMapper.readValue(queryVector, new TypeReference<PromQueryResponse<PromQueryResponse.VectorResult>>() {});
+  @DisplayName("\"result\" node mapping")
+  public void resultMapping() throws IOException {
+    PromQueryResponse<PromQueryResponse.VectorResult> response = objectMapper.readValue(queryVector, VECTOR_TYPE_REF);
 
-    List<PromQueryResponseDto.VectorResultDto> vectorResults = PromQueryResponseMapper.INSTANCE.vectorResponseToDto(response);
-    Assert.assertEquals("Number of mapped results are equal", 1, vectorResults.size());
-
-    PromQueryResponseDto.VectorResultDto vectorResult = vectorResults.get(0);
-    Assert.assertEquals(response.getData().getResult().get(0).getValue().getEpochDateTime(), vectorResult.getValue().getEpochDateTime(), 0);
-    Assert.assertEquals("Value of mapped results are equal", response.getData().getResult().get(0).getValue().getValue(), vectorResult.getValue().getValue());
+    List<PromQueryResponseDto.VectorResultDto> vectorResults = PromQueryResponseMapper.INSTANCE
+        .vectorResponseToDto(response);
+    Assertions.assertEquals(1, vectorResults.size(), "Number of mapped results are equal");
   }
 
   @Test
-  public void testMappingMatrixResult() throws IOException {
-    PromQueryResponse<PromQueryResponse.MatrixResult> response =
-        objectMapper.readValue(queryMatrix, new TypeReference<PromQueryResponse<PromQueryResponse.MatrixResult>>() {});
+  @DisplayName("Metric label \"__name__\" special mapping")
+  public void metric__name__Mapping() throws IOException {
+    PromQueryResponse<PromQueryResponse.VectorResult> response = objectMapper.readValue(queryVector, VECTOR_TYPE_REF);
 
-    List<PromQueryResponseDto.MatrixResultDto> matrixResults = PromQueryResponseMapper.INSTANCE.matrixResponseToDto(response);
-    Assert.assertEquals("Number of mapped results are equal", 1, matrixResults.size());
+    PromQueryResponseDto.VectorResultDto vectorResult = PromQueryResponseMapper.INSTANCE
+        .vectorResponseToDto(response)
+        .get(0);
 
-    PromQueryResponseDto.MatrixResultDto matrixResult = matrixResults.get(0);
+    String __name__ = "go_threads";
+    Assertions.assertEquals(__name__, vectorResult.getName(), "metric label \"__name__\" is properly mapped to \"name\".");
+  }
+
+  @Test
+  @DisplayName("Metric all labels and values mapping")
+  public void metricToLabelsMapping() throws IOException {
+    PromQueryResponse<PromQueryResponse.VectorResult> response = objectMapper.readValue(queryVector, VECTOR_TYPE_REF);
+
+    PromQueryResponseDto.VectorResultDto vectorResult = PromQueryResponseMapper.INSTANCE
+        .vectorResponseToDto(response)
+        .get(0);
+
+    Map<String, String> metrics = Map.of("__name__", "go_threads", "instance", "localhost:9090", "job", "prometheus");
+    Assertions.assertEquals(metrics, vectorResult.getLabels(), "metric labels and values are properly mapped to \"labels\" map.");
+  }
+
+  @Test
+  @DisplayName("Single value mapping (Vector)")
+  public void valueMapping() throws IOException {
+    PromQueryResponse<PromQueryResponse.VectorResult> response = objectMapper.readValue(queryVector, VECTOR_TYPE_REF);
+
+    PromQueryResponse.ResultValue<PromQueryResponse.VectorResult> vectorResultValue = PromQueryResponseMapper.INSTANCE
+        .vectorResponseToDto(response)
+        .get(0)
+        .getValue();
+
+    Assertions.assertEquals(1681824600, vectorResultValue.getEpochDateTime(), "UNIX epoch seconds and milliseconds are properly mapped.");
+    Assertions.assertEquals("10", vectorResultValue.getValue(), "The value is properly mapped");
+  }
+
+  @Test
+  @DisplayName("Multiple values mapping (Matrix)")
+  public void valuesMapping() throws IOException {
+    PromQueryResponse<PromQueryResponse.MatrixResult> response = objectMapper.readValue(queryMatrix, MATRIX_TYPE_REF);
+
+    PromQueryResponseDto.MatrixResultDto matrixResult = PromQueryResponseMapper.INSTANCE
+        .matrixResponseToDto(response)
+        .get(0);
+
+    // TODO: Review this test method and see if there's any necessary to revise.
     for (int i = 0; i < response.getData().getResult().get(0).getValues().size(); i++) {
       PromQueryResponse.ResultValue<PromQueryResponse.MatrixResult> responseValue = response.getData().getResult().get(0).getValues().get(i);
       PromQueryResponse.ResultValue<PromQueryResponse.MatrixResult> dtoValue = matrixResult.getValues().get(i);
