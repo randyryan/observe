@@ -1,3 +1,16 @@
+/*
+ * Copyright (c) 2023 Li Wan
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package works.lifeops.observe.prom4j.builder;
 
 import static works.lifeops.observe.prom4j.builder.PromQueryBuilder.value;
@@ -93,5 +106,16 @@ public class PromQueryTest {
             .build();
 
     Assertions.assertEquals("go_threads[1m30s]", query.toString(), "PromQuery duration is properly built.");
+  }
+
+  @Test
+  public void range() {
+    PromQuery promQuery = PromQuery.builder()
+          .range()
+          .metric("go_threads")
+          .start("2023-05-03T19:45:00+08:00")
+          .end("2023-05-03T19:47:00+08:00")
+          .step(10)
+          .build();
   }
 }
