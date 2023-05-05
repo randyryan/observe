@@ -14,7 +14,6 @@
 package works.lifeops.observe.prom4j.builder;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -26,12 +25,13 @@ import org.springframework.web.util.UriUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import com.google.common.escape.Escaper;
 import com.google.common.escape.Escapers;
 
+import works.lifeops.observe.prom4j.Prom4jSpringHelper;
+
 /**
- * PromQuery utilities.
+ * PromQuery utilities. TODO: Split Spring related methods into a Spring dedicated module.
  *
  * @author Li Wan
  */
@@ -43,6 +43,13 @@ public final class PromQueries {
       .metric("1")
       .build();
 
+  /**
+   * {@link UriUtils#encodeQueryParams(MultiValueMap)} doesn't encode ':' into {@code %3A} and '+' into {@code %2B"}
+   * by design, but they should be in order to send legitimate requests to the Prometheus query API.
+   * The {@code org.springframework.web.util.HierarchicalUriComponents$Type} has package access, so we can't extend it
+   * to customize.
+   * Given these reason we implement our own encoding.
+   */
   public static final Escaper PROM_QUERY_ESCAPER = Escapers.builder()
       .addEscape('[', "%5B")
       .addEscape(']', "%5D")
@@ -56,17 +63,18 @@ public final class PromQueries {
       .build();
 
   /**
-   * Creates a MultiValueMap object to pass to a {@link UriBuilder#queryParams(MultiValueMap)}, with query parameters
-   * from the provided {@link Map} object.
-   *
-   * @param map contains the query parameters to create to the {@link MultiValueMap} object.
-   * @return {@link MultiValueMap} having the same keys and their values put into a {@link List}.
+   * Encode the query parameters from the given {@code MultiValueMap} with the {@link PromQueries#PROM_QUERY_ESCAPER}.
+   * Only used in {@link PromQueryUriBuilderFactory.PromQueryUriBuilder#queryParams(MultiValueMap)} because we can
+   * make a {@code URI} for a Prometheus query with only just {@cdoe queryParams(MultiValueMap)}.
    */
-  public static <K, V> MultiValueMap<K, V> toMultiValueMap(Map<K, V> map) {
-    MultiValueMap<K, V> multiValueMap = new LinkedMultiValueMap<K, V>();
-    map.keySet().forEach(key -> multiValueMap.put(key, Arrays.asList(map.get(key))));
-
-    return multiValueMap;
+  public static MultiValueMap<String, String> encodeQueryParams(MultiValueMap<String, String> queryParams) {
+    MultiValueMap<String, String> result = new LinkedMultiValueMap<>(queryParams.size());
+    for (Map.Entry<String, List<String>> entry : queryParams.entrySet()) {
+      for (String value : entry.getValue()) {
+        result.add(entry.getKey(), PROM_QUERY_ESCAPER.escape(value));
+      }
+    }
+    return result;
   }
 
   /**
@@ -77,28 +85,54 @@ public final class PromQueries {
    * @return {@link MultiValueMap} contains query parameters converted from the specified {@link PromQuery}.
    */
   public static MultiValueMap<String, String> toMultiValueMap(PromQuery promQuery) {
-    Map<String, String> queryParameters = Maps.newHashMap();
-    queryParameters.put("query", promQuery.toString());
+    MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
+    queryParams.add("query", promQuery.toString());
     if (promQuery.is(PromQuery.QueryType.INSTANT)) {
       // Because we removed the encoding behavior from the PromQueryUriBuilderFactory.PromQueryUriBuilder.build, we need
       // to encode the query parameter values ourselves.
       promQuery.asInstant().time()
-          .ifPresent(time -> queryParameters.put("time", time));
+          .ifPresent(time -> queryParams.add("time", time));
     }
     if (promQuery.is(PromQuery.QueryType.RANGE)) {
       promQuery.asRange().start()
-          .ifPresent(start -> queryParameters.put("start", start));
+          .ifPresent(start -> queryParams.add("start", start));
       promQuery.asRange().end()
-          .ifPresent(end -> queryParameters.put("end", end));
+          .ifPresent(end -> queryParams.add("end", end));
       promQuery.asRange().step()
-          .ifPresent(step -> queryParameters.put("step", step.toString()));
+          .ifPresent(step -> queryParams.add("step", step.toString()));
     }
     // TODO: Support the "timeout" parameter for both Instant and Range queries
 
-    return toMultiValueMap(queryParameters);
+    return queryParams;
   }
 
-  public static Function<UriBuilder, URI> createUri(PromQuery promQuery) {
+  /**
+   * The {@link PromQueries#toMultiValueMap} in a more semantically correct name.
+   */
+  public static MultiValueMap<String, String> toQueryParams(PromQuery promQuery) {
+    return toMultiValueMap(promQuery);
+  }
+
+  public static URI createUri(PromQuery promQuery) {
+    return createUri(Prom4jSpringHelper.getProm4jUriBuilder(), promQuery);
+  }
+
+  public static URI createUri(UriBuilder uriBuilder, PromQuery promQuery) {
+    final String path = promQuery.is(PromQuery.QueryType.INSTANT) ?
+        "/query" :
+        promQuery.is(PromQuery.QueryType.RANGE) ?
+            "/query_range" :
+            "";
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(path),
+        "PromQuery of type: \"" + promQuery.type + "\" is not supported.");
+
+    return uriBuilder
+        .path(path)
+        .queryParams(toQueryParams(promQuery))
+        .build();
+  }
+
+  public static Function<UriBuilder, URI> createUriFunc(PromQuery promQuery) {
     final String path = promQuery.is(PromQuery.QueryType.INSTANT) ?
         "/query" :
         promQuery.is(PromQuery.QueryType.RANGE) ?
@@ -109,22 +143,8 @@ public final class PromQueries {
 
     return uriBuilder -> uriBuilder
         .path(path)
-        .queryParams(toMultiValueMap(promQuery))
+        .queryParams(toQueryParams(promQuery))
         .build();
   }
 
-  /**
-   * The {@link UriUtils#encodeQueryParams(MultiValueMap)} doesn't encode ':' and '+' into {@code %3A} and
-   * {@code %2B"} respectively by design, but they should be encoded to send to the Prometheus query API, so we have
-   * to implement our own encodeQueryParams.
-   */
-  public static MultiValueMap<String, String> encodeQueryParams(MultiValueMap<String, String> params) {
-    MultiValueMap<String, String> result = new LinkedMultiValueMap<>(params.size());
-    for (Map.Entry<String, List<String>> entry : params.entrySet()) {
-      for (String value : entry.getValue()) {
-        result.add(entry.getKey(), PROM_QUERY_ESCAPER.escape(value));
-      }
-    }
-    return result;
-  }
 }

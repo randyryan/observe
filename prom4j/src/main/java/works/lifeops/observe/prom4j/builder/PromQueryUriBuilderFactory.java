@@ -180,8 +180,7 @@ public class PromQueryUriBuilderFactory extends DefaultUriBuilderFactory impleme
 
     @Override
     public UriBuilder query(String query) {
-      // XXX: Modified behavior, added encoding
-      this.uriComponentsBuilder.query(UriUtils.encodeQuery(query, Charset.defaultCharset()));
+      this.uriComponentsBuilder.query(query);
       return this;
     }
 

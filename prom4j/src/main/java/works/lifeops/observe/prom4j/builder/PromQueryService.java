@@ -14,7 +14,7 @@
 package works.lifeops.observe.prom4j.builder;
 
 import static works.lifeops.observe.prom4j.builder.PromQueries.TEST_QUERY;
-import static works.lifeops.observe.prom4j.builder.PromQueries.createUri;
+import static works.lifeops.observe.prom4j.builder.PromQueries.createUriFunc;
 
 import java.net.URI;
 import java.util.Optional;
@@ -58,7 +58,7 @@ public class PromQueryService {
    * Query asynchronously using the {@link WebClient} (Spring WebFlux).
    */
   public <R extends PromQueryResponse.Result> Mono<PromQueryResponse<R>> query(PromQuery promQuery) {
-    return client.get().uri(createUri(promQuery)).retrieve().bodyToMono(new ParameterizedTypeReference<>() {});
+    return client.get().uri(createUriFunc(promQuery)).retrieve().bodyToMono(new ParameterizedTypeReference<>() {});
   }
 
   public void test(Optional<PromQuery> query) {
@@ -70,7 +70,7 @@ public class PromQueryService {
    * Query with blocking using the {@link RestTemplate} (Spring WebMVC).
    */
   public <R extends PromQueryResponse.Result> ResponseEntity<PromQueryResponse<R>> queryBlocking(PromQuery promQuery) {
-      URI uri = createUri(promQuery).apply(uriBuilderFactory.builder());
+      URI uri = PromQueries.createUri(uriBuilderFactory.builder(), promQuery);
       return restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
   }
 

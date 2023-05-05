@@ -89,7 +89,7 @@ public class PromQueryUriBuilderFactoryTest {
   }
 
   /**
-   * This is not a "pure" unit test as it involves the correctness of {@link PromQueries#toMultiValueMap}.
+   * This is not a "pure" unit test as it involves the correctness of {@link PromQueries#toQueryParams}.
    *
    * This test tests putting the query parameters other than the "query" parameter.
    */
@@ -98,7 +98,7 @@ public class PromQueryUriBuilderFactoryTest {
   public void queryParamsToUriInstant() throws URISyntaxException {
     URI buildUri = uriBuilder
         .path("/query")
-        .queryParams(PromQueries.toMultiValueMap(instantQuery))
+        .queryParams(PromQueries.toQueryParams(instantQuery))
         .build();
 
     URI uri = new URI("http://prometheus:9090/api/v1/query?query=go_threads%7Bjob%3D~%22prometheus%7Ceureka%22%7D");
@@ -106,7 +106,7 @@ public class PromQueryUriBuilderFactoryTest {
   }
 
   /**
-   * This is not a "pure" unit test as it involves the correctness of {@link PromQueries#toMultiValueMap}.
+   * This is not a "pure" unit test as it involves the correctness of {@link PromQueries#toQueryParams}.
    *
    * This test tests putting the query parameters other than the "query" parameter.
    */
@@ -115,7 +115,7 @@ public class PromQueryUriBuilderFactoryTest {
   public void queryParamsToUriRange() throws URISyntaxException {
     URI buildUri = uriBuilder
         .path("/query_range")
-        .queryParams(PromQueries.toMultiValueMap(rangeQuery))
+        .queryParams(PromQueries.toQueryParams(rangeQuery))
         .build();
 
     URI uri = new URI("http://prometheus:9090/api/v1/query_range?query=go_threads&start=2023-05-03T19%3A45%3A00%2B08%3A00&end=2023-05-03T19%3A47%3A00%2B08%3A00&step=10");
