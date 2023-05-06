@@ -13,8 +13,12 @@
  */
 package works.lifeops.observe.prom4j.builder;
 
+import static works.lifeops.observe.prom4j.builder.PromQuery.value;
+
 import java.util.List;
 import java.util.Optional;
+
+import org.apache.logging.log4j.util.Strings;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
@@ -23,28 +27,22 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
- * A builder of PromQuery objects, currently has no integrity checks and validations.
+ * Builds {@link PromQuery.InstantQuery} and {@link PromQuery.RangeQuery} query objects, invoked through
+ * {@code PromQuery.builder()}.
  *
- * XXX: Type parameter B can be removed, it only serves for the subtypes to inherit the {@link PromQueryBuilder#metric}
- *      and the {@link PromQueryBuilder#label} methods.
+ * Type parameter B was added for the subtypes to inherit the {@link PromQueryBuilder#metric} and the
+ * {@link PromQueryBuilder#label} methods. Need to review the practicality of doing so.
  *
  * @author Li Wan
  */
 @Beta
 @SuppressWarnings("unchecked")
-public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ extends PromQuery> {
-  /**
-   * Creates a label value builder.
-   */
-  public static PromQueryBuilder.LabelValueBuilder value(String value) {
-    return new PromQueryBuilder.LabelValueBuilder(value);
-  }
-
+public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ extends PromQuery> {
   final PromQuery.QueryType queryType;
   private String metric;
   private List<String> criteria;
 
-  private PromQueryBuilder(Class<PQ> queryClass, PromQuery.QueryType queryType) {
+  private PromQueryBuilder(PromQuery.QueryType queryType) {
     this.queryType = queryType;
     this.criteria = Lists.newArrayList();
   }
@@ -58,7 +56,7 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
   }
 
   public LabelBuilder<B> label(String label) {
-    return new LabelBuilder<B>((B) this, label);
+    return new LabelBuilder<B>(label);
   }
 
   protected void add(String criterion) {
@@ -165,7 +163,7 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
     private Optional<String> duration = Optional.empty();
 
     InstantQueryBuilder() {
-      super(PromQuery.InstantQuery.class, PromQuery.QueryType.INSTANT);
+      super(PromQuery.QueryType.INSTANT);
     }
 
     public InstantQueryBuilder time(String rfc3339) {
@@ -204,7 +202,7 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
     private Optional<Integer> step = Optional.empty();
 
     RangeQueryBuilder() {
-      super(PromQuery.RangeQuery.class, PromQuery.QueryType.RANGE);
+      super(PromQuery.QueryType.RANGE);
     }
 
     public RangeQueryBuilder start(String rfc3339) {
@@ -249,14 +247,13 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
     }
   }
 
-  public static class LabelBuilder<B extends PromQueryBuilder<?, ?>> {
-    private B builder;
+  @SuppressWarnings("hiding")
+  public final class LabelBuilder<B extends PromQueryBuilder<B, ?>> {
     private String label;
     private String operator;
     private String value;
 
-    private LabelBuilder(B builder, String label) {
-      this.builder = builder;
+    private LabelBuilder(String label) {
       this.label = label;
     }
 
@@ -291,33 +288,45 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<?, ?>, PQ exte
 
     public B builder() {
       String criterion = String.format("%s%s%s", label, operator, value);
-      builder.add(criterion);
-      return builder;
+      PromQueryBuilder.this.add(criterion);
+      return (B) PromQueryBuilder.this;
     }
   }
 
   /**
-   * An "or" only implementation of RE2.
+   * Label value builder for "or" only of RE2.
    */
   public static class LabelValueBuilder {
     private boolean regex;
     private String value;
+    private List<String> values;
+
+    LabelValueBuilder() {
+      this.values = Lists.newArrayList();
+    }
+
+    LabelValueBuilder(List<String> values) {
+      this.values = values;
+    }
 
     LabelValueBuilder(String value) {
+      this.values = Lists.newArrayList(value);
       this.value = value;
     }
 
-    public LabelValueBuilder or(String value) {
+    public LabelValueBuilder or(String anotherValue) {
       this.regex = true;
-      this.value += "|";
-      this.value += value;
+      this.values.add(anotherValue);
 
       return this;
     }
 
     @Override
     public String toString() {
-      return String.format("\"%s\"", value);
+      String expression = values.size() == 1 ?
+          value != null ? value : values.get(0) :
+          Strings.join(values, '|');
+      return String.format("\"%s\"", expression);
     }
   }
 }

@@ -13,13 +13,16 @@
  */
 package works.lifeops.observe.prom4j.builder;
 
-import static works.lifeops.observe.prom4j.builder.PromQueryBuilder.value;
+import static works.lifeops.observe.prom4j.builder.PromQuery.value;
+import static works.lifeops.observe.prom4j.builder.PromQuery.values;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class PromQueryTest {
+public class PromQueryBuilderTest {
   private static final String METRIC_NAME = "go_threads";
 
   @Test
@@ -113,9 +116,30 @@ public class PromQueryTest {
     PromQuery promQuery = PromQuery.builder()
           .range()
           .metric("go_threads")
+          .label("job").equals(values(List.of("prometheus", "eureka")))
           .start("2023-05-03T19:45:00+08:00")
           .end("2023-05-03T19:47:00+08:00")
           .step(10)
           .build();
+  }
+
+  @Test
+  public void labelValues() {
+    PromQueryBuilder.LabelValueBuilder labelValueBuilder1 = value("prometheus");
+    PromQueryBuilder.LabelValueBuilder labelValueBuilder2 = value("prometheus").or("eureka");
+
+    Assertions.assertEquals("\"prometheus\"", labelValueBuilder1.toString(), "Single value properly built");
+    Assertions.assertEquals("\"prometheus|eureka\"", labelValueBuilder2.toString(), "Binary values properly built");
+  }
+
+  @Test
+  public void labelValuesList() {
+    PromQueryBuilder.LabelValueBuilder labelValueBuilder0 = PromQuery.values(List.of());
+    PromQueryBuilder.LabelValueBuilder labelValueBuilder1 = PromQuery.values(List.of("prometheus"));
+    PromQueryBuilder.LabelValueBuilder labelValueBuilder2 = PromQuery.values(List.of("prometheus", "eureka"));
+
+    Assertions.assertEquals("\"\"", labelValueBuilder0.toString(), "Zero values properly built");
+    Assertions.assertEquals("\"prometheus\"", labelValueBuilder1.toString(), "Single value properly built");
+    Assertions.assertEquals("\"prometheus|eureka\"", labelValueBuilder2.toString(), "Binary values properly built");
   }
 }

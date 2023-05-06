@@ -13,6 +13,7 @@
  */
 package works.lifeops.observe.prom4j.builder;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.google.common.annotations.Beta;
@@ -40,11 +41,12 @@ public abstract class PromQuery {
       return new PromQueryBuilder.RangeQueryBuilder();
     }
 
-    /**
-     * Same as the {@link PromQueryBuilder#value}
-     */
     public PromQueryBuilder.LabelValueBuilder value(String value) {
       return new PromQueryBuilder.LabelValueBuilder(value);
+    }
+
+    public PromQueryBuilder.LabelValueBuilder values(List<String> values) {
+      return new PromQueryBuilder.LabelValueBuilder(values);
     }
   }
 
@@ -52,11 +54,15 @@ public abstract class PromQuery {
     return QUERY_BUILDERS;
   }
 
-  private static final QueryBuilders QUERY_BUILDERS = new QueryBuilders();
-
   public static PromQueryBuilder.LabelValueBuilder value(String value) {
     return QUERY_BUILDERS.value(value);
   }
+
+  public static PromQueryBuilder.LabelValueBuilder values(List<String> values) {
+    return QUERY_BUILDERS.values(values);
+  }
+
+  private static final QueryBuilders QUERY_BUILDERS = new QueryBuilders();
 
   // PromQuery
 
