@@ -27,12 +27,12 @@ import com.google.common.base.Strings;
 @Beta
 public abstract class PromQuery {
   /**
-   * Creators of the concrete builders.
-   *
-   * XXX: We could totally place these methods directly under PromQuery, but for the sake of the builder() method norm,
-   *      we'll just be a little bit "chatty" here.
+   * Creator methods of the concrete builders. Although we could just be like {@code PromQuery.instantBuilder()} but
+   * we are doing it this way for the sake of the {@code builder()} method norm.
    */
   public static final class QueryBuilders {
+    private QueryBuilders() {}
+
     public PromQueryBuilder.InstantQueryBuilder instant() {
       return new PromQueryBuilder.InstantQueryBuilder();
     }
@@ -48,11 +48,18 @@ public abstract class PromQuery {
     public PromQueryBuilder.LabelValueBuilder values(List<String> values) {
       return new PromQueryBuilder.LabelValueBuilder(values);
     }
+
+    public PromQueryBuilder.LabelBuilder label(String label) {
+      return new PromQueryBuilder.LabelBuilder(label);
+    }
   }
 
   public static QueryBuilders builder() {
     return QUERY_BUILDERS;
   }
+
+  // These "value" methods are placed here for the sake of simplicity on the end-user side, no need to import and use
+  // anything else to build a PromQuery other than the PromQuery itself.
 
   public static PromQueryBuilder.LabelValueBuilder value(String value) {
     return QUERY_BUILDERS.value(value);
@@ -60,6 +67,10 @@ public abstract class PromQuery {
 
   public static PromQueryBuilder.LabelValueBuilder values(List<String> values) {
     return QUERY_BUILDERS.values(values);
+  }
+
+  public static PromQueryBuilder.LabelBuilder label(String label) {
+    return QUERY_BUILDERS.label(label);
   }
 
   private static final QueryBuilders QUERY_BUILDERS = new QueryBuilders();

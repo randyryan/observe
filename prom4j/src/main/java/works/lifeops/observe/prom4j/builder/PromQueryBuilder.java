@@ -15,6 +15,7 @@ package works.lifeops.observe.prom4j.builder;
 
 import static works.lifeops.observe.prom4j.builder.PromQuery.value;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,20 +50,28 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
 
   /**
    * Sets the metric name.
+   *
+   * TODO: This is to become MetricStep in DSL.
    */
   public B metric(String metric) {
     this.metric = metric;
     return (B) this;
   }
 
-  public LabelBuilder<B> label(String label) {
-    return new LabelBuilder<B>(label);
+  /**
+   * Sets the label.
+   *
+   * TODO: This is to become LabelStep in DSL.
+   */
+  public LabelBuilderHelper<B> label(String label) {
+    return new LabelBuilderHelper<B>(label);
   }
 
-  protected void add(String criterion) {
-    criteria.add(criterion);
-  }
-
+  /**
+   * Builds the query.
+   *
+   * TODO: This is to become FinalStep in DSL.
+   */
   public abstract PQ build();
 
   // Internal types
@@ -247,21 +256,20 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
     }
   }
 
-  @SuppressWarnings("hiding")
-  public final class LabelBuilder<B extends PromQueryBuilder<B, ?>> {
+  public static class LabelBuilder {
     private String label;
     private String operator;
     private String value;
 
-    private LabelBuilder(String label) {
+    LabelBuilder(String label) {
       this.label = label;
     }
 
-    public B equals(String value) {
-      return equals(value(value));
+    public LabelBuilder is(String value) {
+      return is(value(value));
     }
 
-    public B equals(LabelValueBuilder value) {
+    public LabelBuilder is(LabelValueBuilder value) {
       if (value.regex) {
         this.operator = "=~";
       } else {
@@ -269,26 +277,81 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
       }
       this.value = value.toString();
 
-      return builder();
+      return this;
     }
 
-    public B notEquals(String value) {
-      return notEquals(value(value));
+    public LabelBuilder isNot(String value) {
+      return isNot(value(value));
     }
 
-    public B notEquals(LabelValueBuilder value) {
+    public LabelBuilder isNot(LabelValueBuilder value) {
       if (value.regex) {
         this.operator = "!~";
       } else {
         this.operator = "!=";
       }
 
-      return builder();
+      return this;
     }
 
-    public B builder() {
-      String criterion = String.format("%s%s%s", label, operator, value);
-      PromQueryBuilder.this.add(criterion);
+    public String build() {
+      return String.format("%s%s%s", label, operator, value);
+    }
+  }
+
+  /**
+   * A decorator to help the semantics of: {@code PromQuery.builder().label("job").is("prometheus")}.
+   */
+  @SuppressWarnings("hiding")
+  public class LabelBuilderHelper<B extends PromQueryBuilder<B, ?>> {
+    private LabelBuilder labelBuilder;
+
+    private LabelBuilderHelper(String label) {
+      this.labelBuilder = new LabelBuilder(label);
+    }
+
+    @Deprecated(forRemoval = true)
+    public B equals(String value) {
+      return is(value);
+    }
+
+    @Deprecated(forRemoval = true)
+    public B equals(LabelValueBuilder value) {
+      return is(value);
+    }
+
+    @Deprecated(forRemoval = true)
+    public B notEquals(String value) {
+      return isNot(value);
+    }
+
+    @Deprecated(forRemoval = true)
+    public B notEquals(LabelValueBuilder value) {
+      return isNot(value);
+    }
+
+    public B is(String value) {
+      labelBuilder.is(value);
+      return queryBuilder();
+    }
+
+    public B is(LabelValueBuilder value) {
+      labelBuilder.is(value);
+      return queryBuilder();
+    }
+
+    public B isNot(String value) {
+      labelBuilder.is(value);
+      return queryBuilder();
+    }
+
+    public B isNot(LabelValueBuilder value) {
+      labelBuilder.isNot(value);
+      return queryBuilder();
+    }
+
+    B queryBuilder() {
+      PromQueryBuilder.this.criteria.add(this.labelBuilder.build());
       return (B) PromQueryBuilder.this;
     }
   }

@@ -13,6 +13,7 @@
  */
 package works.lifeops.observe.prom4j.builder;
 
+import static works.lifeops.observe.prom4j.builder.PromQuery.label;
 import static works.lifeops.observe.prom4j.builder.PromQuery.value;
 import static works.lifeops.observe.prom4j.builder.PromQuery.values;
 
@@ -62,7 +63,7 @@ public class PromQueryBuilderTest {
   public void labelOnly() {
     PromQuery query = PromQuery.builder()
         .instant()
-        .label("job").equals("prometheus")
+        .label("job").is("prometheus")
         .build();
 
     Assertions.assertEquals("{job=\"prometheus\"}", query.toString(), "PromQuery label (only) is properly built");
@@ -73,7 +74,7 @@ public class PromQueryBuilderTest {
     PromQuery query = PromQuery.builder()
         .instant()
         .metric("go_threads")
-        .label("job").equals("prometheus")
+        .label("job").is("prometheus")
         .build();
 
     Assertions.assertEquals("go_threads{job=\"prometheus\"}", query.toString(), "PromQuery metric and label is properly built");
@@ -83,8 +84,8 @@ public class PromQueryBuilderTest {
   public void multipleLabels() {
     PromQuery query = PromQuery.builder()
         .instant()
-        .label("instance").equals("localhost:9090")
-        .label("job").equals("prometheus")
+        .label("instance").is("localhost:9090")
+        .label("job").is("prometheus")
         .build();
 
     Assertions.assertEquals("{instance=\"localhost:9090\",job=\"prometheus\"}", query.toString(), "PromQuery multiple labels are properly built");
@@ -94,7 +95,7 @@ public class PromQueryBuilderTest {
   public void multipleLabelValuesOr() {
     PromQuery query = PromQuery.builder()
         .instant()
-        .label("job").equals(value("prometheus").or("eureka"))
+        .label("job").is(value("prometheus").or("eureka"))
         .build();
 
     Assertions.assertEquals("{job=~\"prometheus|eureka\"}", query.toString(), "PromQuery multiple labels or relationship is properly build");
@@ -103,30 +104,30 @@ public class PromQueryBuilderTest {
   @Test
   public void duration() {
     PromQuery query = PromQuery.builder()
-            .instant()
-            .metric("go_threads")
-            .duration().m(1).s(30)
-            .build();
+        .instant()
+        .metric("go_threads")
+        .duration().m(1).s(30)
+        .build();
 
     Assertions.assertEquals("go_threads[1m30s]", query.toString(), "PromQuery duration is properly built.");
   }
 
   @Test
   public void range() {
-    PromQuery promQuery = PromQuery.builder()
-          .range()
-          .metric("go_threads")
-          .label("job").equals(values(List.of("prometheus", "eureka")))
-          .start("2023-05-03T19:45:00+08:00")
-          .end("2023-05-03T19:47:00+08:00")
-          .step(10)
-          .build();
+    PromQuery promQuery0 = PromQuery.builder()
+        .range()
+        .metric("go_threads")
+        .label("job").is(values(List.of("prometheus", "eureka")))
+        .start("2023-05-03T19:45:00+08:00")
+        .end("2023-05-03T19:47:00+08:00")
+        .step(10)
+        .build();
   }
 
   @Test
   public void labelValues() {
-    PromQueryBuilder.LabelValueBuilder labelValueBuilder1 = value("prometheus");
-    PromQueryBuilder.LabelValueBuilder labelValueBuilder2 = value("prometheus").or("eureka");
+    PromQueryBuilder.LabelValueBuilder labelValueBuilder1 = PromQuery.value("prometheus");
+    PromQueryBuilder.LabelValueBuilder labelValueBuilder2 = PromQuery.value("prometheus").or("eureka");
 
     Assertions.assertEquals("\"prometheus\"", labelValueBuilder1.toString(), "Single value properly built");
     Assertions.assertEquals("\"prometheus|eureka\"", labelValueBuilder2.toString(), "Binary values properly built");
