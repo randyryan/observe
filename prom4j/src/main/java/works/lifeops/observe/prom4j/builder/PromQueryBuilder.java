@@ -67,6 +67,37 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
     return new LabelBuilderHelper<B>(label);
   }
 
+  public B label(LabelBuilder labelBuilder) {
+    criteria.add(labelBuilder.build());
+    return (B) this;
+  }
+
+  public B labels(LabelBuilder... labelBuilders) {
+    for (LabelBuilder labelBuilder : labelBuilders) {
+      criteria.add(labelBuilder.build());
+    }
+    return (B) this;
+  }
+
+  public B labels(Collection<? extends LabelBuilder> labelBuilders) {
+    for (LabelBuilder labelBuilder : labelBuilders) {
+      criteria.add(labelBuilder.build());
+    }
+    return (B) this;
+  }
+
+  public B labels(Iterable<? extends LabelBuilder> labelBuilders) {
+    for (LabelBuilder labelBuilder : labelBuilders) {
+      criteria.add(labelBuilder.build());
+    }
+    return (B) this;
+  }
+
+  public B labels(Optional<List<? extends LabelBuilder>> labelBuilders) {
+    labelBuilders.ifPresent(this::labels);
+    return (B) this;
+  }
+
   /**
    * Builds the query.
    *
@@ -102,9 +133,6 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
       throw new UnsupportedOperationException("Not implemented");
     }
 
-    /**
-     * Let the duration to be the last step of building an instant query. Another thought: Label value builder.
-     */
     public PromQuery.InstantQuery build() {
       builder.duration = Optional.of(toString());
       return builder.build();
@@ -269,8 +297,11 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
       return is(value(value));
     }
 
+    /**
+     * To provide the values through the value builder semantics, one of the 2 flavors that our label builder offers.
+     */
     public LabelBuilder is(LabelValueBuilder value) {
-      if (value.regex) {
+      if (value.regex()) {
         this.operator = "=~";
       } else {
         this.operator = "=";
@@ -284,13 +315,38 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
       return isNot(value(value));
     }
 
+    /**
+     * To provide the values through the value builder semantics, one of the 2 flavors that our label builder offers.
+     */
     public LabelBuilder isNot(LabelValueBuilder value) {
-      if (value.regex) {
+      if (value.regex()) {
         this.operator = "!~";
       } else {
         this.operator = "!=";
       }
 
+      return this;
+    }
+
+    public LabelBuilder in(List<String> values) {
+      is(new LabelValueBuilder(values));
+      return this;
+    }
+
+    // TODO: Review: Is Optional of List really necessary?
+    public LabelBuilder in(Optional<List<String>> values) {
+      values.map(LabelValueBuilder::new).ifPresent(this::is);
+      return this;
+    }
+
+    public LabelBuilder notIn(List<String> values) {
+      isNot(new LabelValueBuilder(values));
+      return this;
+    }
+
+    // TODO: Review: Is Optional of List really necessary?
+    public LabelBuilder notIn(Optional<List<String>> values) {
+      values.map(LabelValueBuilder::new).ifPresent(this::isNot);
       return this;
     }
 
@@ -350,6 +406,26 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
       return queryBuilder();
     }
 
+    public B in(List<String> values) {
+      labelBuilder.in(values);
+      return queryBuilder();
+    }
+
+    public B in(Optional<List<String>> values) {
+      labelBuilder.in(values);
+      return queryBuilder();
+    }
+
+    public B notIn(List<String> values) {
+      labelBuilder.notIn(values);
+      return queryBuilder();
+    }
+
+    public B notIn(Optional<List<String>> values) {
+      labelBuilder.notIn(values);
+      return queryBuilder();
+    }
+
     B queryBuilder() {
       PromQueryBuilder.this.criteria.add(this.labelBuilder.build());
       return (B) PromQueryBuilder.this;
@@ -360,7 +436,6 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
    * Label value builder for "or" only of RE2.
    */
   public static class LabelValueBuilder {
-    private boolean regex;
     private String value;
     private List<String> values;
 
@@ -378,10 +453,12 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
     }
 
     public LabelValueBuilder or(String anotherValue) {
-      this.regex = true;
       this.values.add(anotherValue);
-
       return this;
+    }
+
+    boolean regex() {
+      return values.size() > 1;
     }
 
     @Override

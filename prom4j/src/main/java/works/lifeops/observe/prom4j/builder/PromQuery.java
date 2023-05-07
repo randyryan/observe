@@ -41,16 +41,16 @@ public abstract class PromQuery {
       return new PromQueryBuilder.RangeQueryBuilder();
     }
 
+    public PromQueryBuilder.LabelBuilder label(String label) {
+      return new PromQueryBuilder.LabelBuilder(label);
+    }
+
     public PromQueryBuilder.LabelValueBuilder value(String value) {
       return new PromQueryBuilder.LabelValueBuilder(value);
     }
 
     public PromQueryBuilder.LabelValueBuilder values(List<String> values) {
       return new PromQueryBuilder.LabelValueBuilder(values);
-    }
-
-    public PromQueryBuilder.LabelBuilder label(String label) {
-      return new PromQueryBuilder.LabelBuilder(label);
     }
   }
 
@@ -61,16 +61,16 @@ public abstract class PromQuery {
   // These "value" methods are placed here for the sake of simplicity on the end-user side, no need to import and use
   // anything else to build a PromQuery other than the PromQuery itself.
 
+  public static PromQueryBuilder.LabelBuilder label(String label) {
+    return QUERY_BUILDERS.label(label);
+  }
+
   public static PromQueryBuilder.LabelValueBuilder value(String value) {
     return QUERY_BUILDERS.value(value);
   }
 
   public static PromQueryBuilder.LabelValueBuilder values(List<String> values) {
     return QUERY_BUILDERS.values(values);
-  }
-
-  public static PromQueryBuilder.LabelBuilder label(String label) {
-    return QUERY_BUILDERS.label(label);
   }
 
   private static final QueryBuilders QUERY_BUILDERS = new QueryBuilders();

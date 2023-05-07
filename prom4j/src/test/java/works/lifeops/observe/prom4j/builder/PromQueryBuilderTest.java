@@ -18,6 +18,7 @@ import static works.lifeops.observe.prom4j.builder.PromQuery.value;
 import static works.lifeops.observe.prom4j.builder.PromQuery.values;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -60,6 +61,7 @@ public class PromQueryBuilderTest {
   }
 
   @Test
+  @DisplayName("Label-only query building")
   public void labelOnly() {
     PromQuery query = PromQuery.builder()
         .instant()
@@ -67,6 +69,65 @@ public class PromQueryBuilderTest {
         .build();
 
     Assertions.assertEquals("{job=\"prometheus\"}", query.toString(), "PromQuery label (only) is properly built");
+  }
+
+  @Test
+  @DisplayName("First-class label values building")
+  public void labelValues() {
+    PromQueryBuilder.LabelValueBuilder labelValue1 = PromQuery.value("prometheus");
+    PromQueryBuilder.LabelValueBuilder labelValue2 = PromQuery.value("prometheus").or("eureka");
+    PromQueryBuilder.LabelValueBuilder labelValue3 = PromQuery.value("prometheus").or("eureka").or("consul");
+
+    Assertions.assertEquals("\"prometheus\"", labelValue1.toString(), "Unary value properly built");
+    Assertions.assertEquals("\"prometheus|eureka\"", labelValue2.toString(), "Binary values properly built");
+    Assertions.assertEquals("\"prometheus|eureka|consul\"", labelValue3.toString(), "Ternary values properly built");
+  }
+
+  @Test
+  @DisplayName("First-class label value list building")
+  public void labelValueList() {
+    PromQueryBuilder.LabelValueBuilder labelValue0 = PromQuery.values(List.of());
+    PromQueryBuilder.LabelValueBuilder labelValue1 = PromQuery.values(List.of("prometheus"));
+    PromQueryBuilder.LabelValueBuilder labelValue2 = PromQuery.values(List.of("prometheus", "eureka"));
+    PromQueryBuilder.LabelValueBuilder labelValue3 = PromQuery.values(List.of("prometheus", "eureka", "consul"));
+
+    Assertions.assertEquals("\"\"", labelValue0.toString(), "Nullary values properly built");
+    Assertions.assertEquals("\"prometheus\"", labelValue1.toString(), "Unary value properly built");
+    Assertions.assertEquals("\"prometheus|eureka\"", labelValue2.toString(), "Binary values properly built");
+    Assertions.assertEquals("\"prometheus|eureka|consul\"", labelValue3.toString(), "Ternary values properly built");
+  }
+
+  @Test
+  public void labelOptionalValue() {
+    PromQueryBuilder.LabelBuilder label0 = PromQuery.label("job").in(Optional.of(List.of()));
+    PromQueryBuilder.LabelBuilder label1 = PromQuery.label("job").in(Optional.of(List.of("prometheus")));
+    PromQueryBuilder.LabelBuilder label2 = PromQuery.label("job").in(Optional.of(List.of("prometheus", "eureka")));
+    PromQueryBuilder.LabelBuilder label3 = PromQuery.label("job").in(Optional.of(List.of("prometheus", "eureka", "consul")));
+
+    Assertions.assertEquals("job=\"\"", label0.build(), "Nullary values properly built");
+    Assertions.assertEquals("job=\"prometheus\"", label1.build(), "Unary value properly built");
+    Assertions.assertEquals("job=~\"prometheus|eureka\"", label2.build(), "Binary values properly built");
+    Assertions.assertEquals("job=~\"prometheus|eureka|consul\"", label3.build(), "Ternary values properly built");
+  }
+
+  @Test
+  public void labelsNewSemantics() {
+    PromQuery promQuery0 = PromQuery.builder()
+        .instant()
+        .metric("go_metrics")
+        .label(label("job").is("prometheus"))
+        .build();
+    PromQuery promQuery1 = PromQuery.builder()
+        .instant()
+        .metric("go_metrics")
+        .labels(
+            label("job").is("prometheus"),
+            label("instance").is("localhost:9090")
+        )
+        .build();
+
+    Assertions.assertEquals("go_metrics{job=\"prometheus\"}", promQuery0.toString(), "First-class label properly built");
+    Assertions.assertEquals("go_metrics{job=\"prometheus\",instance=\"localhost:9090\"}", promQuery1.toString(), "Multiple labels properly built");
   }
 
   @Test
@@ -102,6 +163,16 @@ public class PromQueryBuilderTest {
   }
 
   @Test
+  public void labelIn() {
+    PromQuery query = PromQuery.builder()
+        .instant()
+        .label("job").in(Optional.empty())
+        .build();
+
+    System.out.println(query.toString()); // {jobnullnull}
+  }
+
+  @Test
   public void duration() {
     PromQuery query = PromQuery.builder()
         .instant()
@@ -114,7 +185,7 @@ public class PromQueryBuilderTest {
 
   @Test
   public void range() {
-    PromQuery promQuery0 = PromQuery.builder()
+    PromQuery promQuery = PromQuery.builder()
         .range()
         .metric("go_threads")
         .label("job").is(values(List.of("prometheus", "eureka")))
@@ -122,25 +193,8 @@ public class PromQueryBuilderTest {
         .end("2023-05-03T19:47:00+08:00")
         .step(10)
         .build();
-  }
 
-  @Test
-  public void labelValues() {
-    PromQueryBuilder.LabelValueBuilder labelValueBuilder1 = PromQuery.value("prometheus");
-    PromQueryBuilder.LabelValueBuilder labelValueBuilder2 = PromQuery.value("prometheus").or("eureka");
-
-    Assertions.assertEquals("\"prometheus\"", labelValueBuilder1.toString(), "Single value properly built");
-    Assertions.assertEquals("\"prometheus|eureka\"", labelValueBuilder2.toString(), "Binary values properly built");
-  }
-
-  @Test
-  public void labelValuesList() {
-    PromQueryBuilder.LabelValueBuilder labelValueBuilder0 = PromQuery.values(List.of());
-    PromQueryBuilder.LabelValueBuilder labelValueBuilder1 = PromQuery.values(List.of("prometheus"));
-    PromQueryBuilder.LabelValueBuilder labelValueBuilder2 = PromQuery.values(List.of("prometheus", "eureka"));
-
-    Assertions.assertEquals("\"\"", labelValueBuilder0.toString(), "Zero values properly built");
-    Assertions.assertEquals("\"prometheus\"", labelValueBuilder1.toString(), "Single value properly built");
-    Assertions.assertEquals("\"prometheus|eureka\"", labelValueBuilder2.toString(), "Binary values properly built");
+    // start, end, and step are query parameters not the query expression
+    Assertions.assertEquals("go_threads{job=~\"prometheus|eureka\"}", promQuery.toString(), "Range query expression is properly built.");
   }
 }
