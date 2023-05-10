@@ -11,14 +11,15 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package works.lifeops.observe.prom4j;
+package works.lifeops.observe.demo;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
-@SpringBootTest
-class Prom4jApplicationTests {
-  @Test
-  void contextLoads() {
-  }
+/**
+ * A temporary configuration to let the PromQueryService work until we finish Spring dedicated module.
+ */
+@Configuration
+@ComponentScan(basePackages = { "works.lifeops.observe.prom4j" })
+public class Prom4jConfiguration {
 }

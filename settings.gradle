@@ -1,4 +1,5 @@
 rootProject.name = 'observe'
 
 include 'demo-api'
+include 'demo-app'
 include 'prom4j-core'

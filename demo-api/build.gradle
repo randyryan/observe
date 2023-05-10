@@ -16,7 +16,7 @@ repositories {
 sourceSets {
     main {
         java {
-            srcDir file("${buildDir}/generated/openapi/src/main/java")
+            srcDirs += ["${buildDir}/generated/openapi/src/main/java"]
         }
     }
 }

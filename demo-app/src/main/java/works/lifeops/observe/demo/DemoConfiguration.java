@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package works.lifeops.observe.prom4j;
+package works.lifeops.observe.demo;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -19,7 +19,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +40,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.datatype.jsr310.ser.OffsetDateTimeSerializer;
 
 import works.lifeops.observe.prom4j.builder.PromQueryDeserializer;
 import works.lifeops.observe.prom4j.builder.PromQueryResponse;
@@ -49,7 +47,7 @@ import works.lifeops.observe.prom4j.builder.PromQueryUriBuilderFactory;
 
 @EnableWebMvc
 @Configuration
-public class Prom4jConfiguration implements WebMvcConfigurer {
+public class DemoConfiguration implements WebMvcConfigurer {
   private static String PROMETHEUS_SERVER_BASE_URL;
 
   @Value("${prom4j.prometheus.server.base-uri}/api/v1")

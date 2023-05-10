@@ -28,8 +28,6 @@ import com.google.common.base.Strings;
 import com.google.common.escape.Escaper;
 import com.google.common.escape.Escapers;
 
-import works.lifeops.observe.prom4j.Prom4jSpringHelper;
-
 /**
  * PromQuery utilities. TODO: Split Spring related methods into a Spring dedicated module.
  *
@@ -113,9 +111,9 @@ public final class PromQueries {
     return toMultiValueMap(promQuery);
   }
 
-  public static URI createUri(PromQuery promQuery) {
-    return createUri(Prom4jSpringHelper.getProm4jUriBuilder(), promQuery);
-  }
+//  public static URI createUri(PromQuery promQuery) {
+//    return createUri(Prom4jSpringHelper.getProm4jUriBuilder(), promQuery);
+//  }
 
   public static URI createUri(UriBuilder uriBuilder, PromQuery promQuery) {
     final String path = promQuery.is(PromQuery.QueryType.INSTANT) ?

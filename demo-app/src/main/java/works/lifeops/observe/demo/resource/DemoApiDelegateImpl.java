@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package works.lifeops.observe.prom4j.resource;
+package works.lifeops.observe.demo.resource;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,7 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import works.lifeops.observe.prom4j.api.Prom4jApiDelegate;
+import works.lifeops.observe.prom4j.api.DemoApiDelegate;
 import works.lifeops.observe.prom4j.api.dto.ChartSampleDto;
 import works.lifeops.observe.prom4j.api.dto.SampleDto;
 import works.lifeops.observe.prom4j.api.dto.TimeSeriesDto;
@@ -39,11 +39,11 @@ import works.lifeops.observe.prom4j.builder.dto.PromQueryResultMapper;
  */
 @Slf4j
 @Component
-public class Prom4jApiDelegateImpl implements Prom4jApiDelegate {
+public class DemoApiDelegateImpl implements DemoApiDelegate {
   private final PromQueryService promQueryService;
   private final PromQueryResultMapper promResultMapper;
 
-  Prom4jApiDelegateImpl(final PromQueryService promQueryService,
+  DemoApiDelegateImpl(final PromQueryService promQueryService,
                         final PromQueryResultMapper promResultMapper) {
     this.promQueryService = promQueryService;
     this.promResultMapper = promResultMapper;
@@ -103,6 +103,6 @@ public class Prom4jApiDelegateImpl implements Prom4jApiDelegate {
 
   @Override
   public ResponseEntity<List<ChartSampleDto>> getGoThreadsRangeChart(OffsetDateTime start, OffsetDateTime end, Integer step) {
-    return Prom4jApiDelegate.super.getGoThreadsRangeChart(start, end, step);
+    return DemoApiDelegate.super.getGoThreadsRangeChart(start, end, step);
   }
 }

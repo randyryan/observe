@@ -11,17 +11,14 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package works.lifeops.observe.prom4j;
+package works.lifeops.observe.demo;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.context.annotation.Import;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
-@Import(Prom4jApiConfiguration.class)
-public class Prom4jApplication {
-  public static void main(String[] args) {
-    SpringApplication.run(Prom4jApplication.class, args);
+@SpringBootTest
+class DemoApplicationTests {
+  @Test
+  void contextLoads() {
   }
 }

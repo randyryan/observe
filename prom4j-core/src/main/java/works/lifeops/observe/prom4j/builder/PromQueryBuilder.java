@@ -19,8 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.logging.log4j.util.Strings;
-
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 
@@ -465,7 +463,7 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
     public String toString() {
       String expression = values.size() == 1 ?
           value != null ? value : values.get(0) :
-          Strings.join(values, '|');
+          String.join("|", values);
       return String.format("\"%s\"", expression);
     }
   }

@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package works.lifeops.observe.prom4j;
+package works.lifeops.observe.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -25,15 +25,15 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
-@ComponentScan(basePackages = { Prom4jApiConfiguration.API_PACKAGE })
-public class Prom4jApiConfiguration {
-  public static final String API_PACKAGE = "works.lifeops.observe.prom4j.api";
+@ComponentScan(basePackages = { DemoApiConfiguration.API_PACKAGE })
+public class DemoApiConfiguration {
+  public static final String API_PACKAGE = "works.lifeops.observe.demo.api";
   @Autowired
   private RequestMappingHandlerMapping requestMappingHandlerMapping;
 
-  public Prom4jApiConfiguration() {
+  public DemoApiConfiguration() {
     // Do nothing, we only need the @ComponentScan to work here instead of using it at the Prom4jApplication
-    log.info("Loading generated service stubs under package {}", Prom4jApiConfiguration.API_PACKAGE);
+    log.info("Loading generated service stubs under package {}", DemoApiConfiguration.API_PACKAGE);
   }
 
   @EventListener(ApplicationReadyEvent.class)

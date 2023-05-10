@@ -3,7 +3,7 @@ import { ChartSample, Sample, TimeSeries } from "./results";
 
 @endpoint({
   method: 'GET',
-  path: '/prom4j/go-threads',
+  path: '/demo/go-threads',
   tags: ['Prom4j'],
   server: 'Prom4j'
 })
@@ -17,7 +17,7 @@ class GetGoThreads {
 
 @endpoint({
   method: 'GET',
-  path: '/prom4j/go-threads/range',
+  path: '/demo/go-threads/range',
   tags: ['Prom4j'],
   server: 'Prom4j'
 })
@@ -40,7 +40,7 @@ class GetGoThreadsRange {
 
 @endpoint({
   method: 'GET',
-  path: '/prom4j/go-threads/range/chart',
+  path: '/demo/go-threads/range/chart',
   tags: ['Prom4j'],
   server: 'Prom4j'
 })
