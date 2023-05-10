@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -59,27 +59,24 @@ public class PromQueryDeserializerTest {
     metric.put("__name__", "go_threads");
     metric.put("instance", "localhost:9090");
     metric.put("job", "prometheus");
-    PromQueryResponse.ResultValue<PromQueryResponse.VectorResult> value = PromQueryResponse.ResultValue.of(1681824600, "10");
+    PromQueryResponse.ResultValue<PromQueryResponse.VectorResult> value =
+        PromQueryResponse.ResultValue.of(1681824600, "10");
     PromQueryResponse.VectorResult resultItem = new PromQueryResponse.VectorResult(metric, value);
 
-    Assert.assertEquals("response.status is properly deserialized",
-        PromQueryResponse.Status.SUCCESS,
-        response.getStatus());
-    Assert.assertEquals("response.data.resultType is properly deserialized",
-        PromQueryResponse.ResultType.VECTOR,
-        response.getData().getResultType());
+    Assertions.assertEquals(PromQueryResponse.Status.SUCCESS, response.getStatus(),
+        "response.status is properly deserialized");
+    Assertions.assertEquals(PromQueryResponse.ResultType.VECTOR, response.getData().getResultType(),
+        "response.data.resultType is properly deserialized");
     // rough comparison
-    Assert.assertEquals("response.data.result list is properly deserialized",
-        1,
-        response.getData().getResult().size());
+    Assertions.assertEquals(1, response.getData().getResult().size(),
+        "response.data.result list is properly deserialized");
     // rough comparison
-    Assert.assertEquals("response.data.result item is properly deserialized",
-        resultItem.getMetric().size(),
-        response.getData().getResult().get(0).getMetric().size());
+    Assertions.assertEquals(resultItem.getMetric().size(), response.getData().getResult().get(0).getMetric().size(),
+        "response.data.result item is properly deserialized");
     // rough comparison
-    Assert.assertEquals("response.data.result item is properly deserialized",
-        resultItem.getValue().toString(),
-        response.getData().getResult().get(0).getValue().toString());
+    Assertions.assertEquals(resultItem.getValue().toString(),
+        response.getData().getResult().get(0).getValue().toString(),
+        "response.data.result item is properly deserialized");
   }
 
   @Test
@@ -101,23 +98,18 @@ public class PromQueryDeserializerTest {
     PromQueryResponse<PromQueryResponse.MatrixResult> response =
         objectMapper.readValue(queryMatrix, new TypeReference<PromQueryResponse<PromQueryResponse.MatrixResult>>() {});
 
-    Assert.assertEquals("response.status is properly deserialized",
-        PromQueryResponse.Status.SUCCESS,
-        response.getStatus());
-    Assert.assertEquals("response.data.resultType is properly deserialized",
-        PromQueryResponse.ResultType.MATRIX,
-        response.getData().getResultType());
+    Assertions.assertEquals(PromQueryResponse.Status.SUCCESS, response.getStatus(),
+        "response.status is properly deserialized");
+    Assertions.assertEquals(PromQueryResponse.ResultType.MATRIX, response.getData().getResultType(),
+        "response.data.resultType is properly deserialized");
     // rough comparison
-    Assert.assertEquals("response.data.result list is properly deserialized",
-        1,
-        response.getData().getResult().size());
+    Assertions.assertEquals(1, response.getData().getResult().size(),
+        "response.data.result list is properly deserialized");
     // rough comparison
-    Assert.assertEquals("response.data.result item is properly deserialized",
-        resultItem.getMetric().size(),
-        response.getData().getResult().get(0).getMetric().size());
+    Assertions.assertEquals(resultItem.getMetric().size(), response.getData().getResult().get(0).getMetric().size(),
+        "response.data.result item is properly deserialized");
     // rough comparison
-    Assert.assertEquals("response.data.result item is properly deserialized",
-        resultItem.getValues().size(),
-        response.getData().getResult().get(0).getValues().size());
+    Assertions.assertEquals(resultItem.getValues().size(), response.getData().getResult().get(0).getValues().size(),
+        "response.data.result item is properly deserialized");
   }
 }

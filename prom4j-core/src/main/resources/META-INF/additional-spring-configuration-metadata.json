@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "prom4j.prometheus.server.base-uri",
+      "type": "java.lang.String",
+      "description": "The base URI of the Prometheus server.",
+      "defaultValue": "http://prometheus:9090"
+    }
+  ]
+}

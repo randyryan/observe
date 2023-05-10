@@ -16,7 +16,7 @@ package works.lifeops.observe.prom4j.builder;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -52,11 +52,13 @@ public class PromQueryResponseTest {
   public void testGetOffsetDateTime() throws StreamReadException, DatabindException, IOException {
     PromQueryResponse<PromQueryResponse.VectorResult> response = objectMapper.readValue(queryVectorMultiple, TYPE_REF);
 
-    Assert.assertEquals("ISO 8601 is correctly converted",
+    Assertions.assertEquals(
         "2023-04-18T13:30:00.331Z",
-        response.getData().getResult().get(0).getValue().getOffsetDateTime().toString());
-    Assert.assertEquals("ISO 8601 is correctly converted",
+        response.getData().getResult().get(0).getValue().getOffsetDateTime().toString(),
+        "ISO 8601 is correctly converted");
+    Assertions.assertEquals(
         "2023-04-18T13:30:00.509Z",
-        response.getData().getResult().get(1).getValue().getOffsetDateTime().toString());
+        response.getData().getResult().get(1).getValue().getOffsetDateTime().toString(),
+        "ISO 8601 is correctly converted");
   }
 }

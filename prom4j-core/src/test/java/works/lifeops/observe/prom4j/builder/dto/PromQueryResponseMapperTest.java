@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -131,7 +130,7 @@ public class PromQueryResponseMapperTest {
     for (int i = 0; i < response.getData().getResult().get(0).getValues().size(); i++) {
       PromQueryResponse.ResultValue<PromQueryResponse.MatrixResult> responseValue = response.getData().getResult().get(0).getValues().get(i);
       PromQueryResponse.ResultValue<PromQueryResponse.MatrixResult> dtoValue = matrixResult.getValues().get(i);
-      Assert.assertEquals("ResultValues are equal", responseValue, dtoValue);
+      Assertions.assertEquals(responseValue, dtoValue, "ResultValues are equal");
     }
   }
 

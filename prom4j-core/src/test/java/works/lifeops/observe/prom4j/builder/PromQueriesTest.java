@@ -15,7 +15,7 @@ package works.lifeops.observe.prom4j.builder;
 
 import java.net.URI;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ public class PromQueriesTest {
         .build();
 
     URI uri = PromQueries.createUriFunc(query).apply(uriBuilder);
-    Assert.assertEquals("URI is properly created", "/api/v1/query?query=go_threads", uri.toString());
+    Assertions.assertEquals("/api/v1/query?query=go_threads", uri.toString(), "URI is properly created");
   }
 
   @Test
@@ -60,7 +60,7 @@ public class PromQueriesTest {
         .build();
 
     URI uri = PromQueries.createUriFunc(query).apply(uriBuilder);
-    Assert.assertEquals("URI is properly created", "/api/v1/query?query=go_threads&time=2023-04-22T20%3A45%3A40%2B08%3A00", uri.toString());
+    Assertions.assertEquals("/api/v1/query?query=go_threads&time=2023-04-22T20%3A45%3A40%2B08%3A00", uri.toString(), "URI is properly created");
   }
 }
 

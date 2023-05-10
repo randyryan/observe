@@ -52,7 +52,7 @@ import works.lifeops.observe.prom4j.builder.PromQueryUriBuilderFactory;
 public class Prom4jConfiguration implements WebMvcConfigurer {
   private static String PROMETHEUS_SERVER_BASE_URL;
 
-  @Value("${prometheus.server.base-uri}/api/v1")
+  @Value("${prom4j.prometheus.server.base-uri}/api/v1")
   private void prometheusServerBaseUrl(String prometheusServerBaseUrl) {
     PROMETHEUS_SERVER_BASE_URL = prometheusServerBaseUrl;
   }

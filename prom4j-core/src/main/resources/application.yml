@@ -1,6 +1,7 @@
-prometheus:
-  server:
-    base-uri: http://prometheus:9090
+prom4j:
+  prometheus:
+    server:
+      base-uri: http://localhost:9090
 
 # Used for overriding the base path of the API defined in the OpenAPI Specification document. Note that the hierarchy
 # between the "openapi" and "base-path" must be the same as the value of "title" in:
