@@ -29,12 +29,14 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-    implementation "org.mapstruct:mapstruct:1.5.4.Final"
-    annotationProcessor "org.mapstruct:mapstruct-processor:1.5.4.Final"
-    testAnnotationProcessor "org.mapstruct:mapstruct-processor:1.5.4.Final"
-    implementation 'com.google.guava:guava:31.1-jre'
+    compileOnly libs.lombok
+    annotationProcessor libs.lombok
+    testCompileOnly libs.lombok
+    testAnnotationProcessor libs.lombok
+    implementation libs.mapstruct
+    annotationProcessor libs.mapstruct.processor
+    testAnnotationProcessor libs.mapstruct.processor
+    implementation libs.guava
     // Spring Boot
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     implementation 'org.springframework.boot:spring-boot-starter-web'

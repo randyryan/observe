@@ -27,12 +27,14 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly 'org.projectlombok:lombok:1.18.26'
-    annotationProcessor 'org.projectlombok:lombok:1.18.26'
-    implementation "org.mapstruct:mapstruct:1.5.4.Final"
-    annotationProcessor "org.mapstruct:mapstruct-processor:1.5.4.Final"
-    testAnnotationProcessor "org.mapstruct:mapstruct-processor:1.5.4.Final"
-    implementation 'com.google.guava:guava:31.1-jre'
+    compileOnly libs.lombok
+    annotationProcessor libs.lombok
+    testCompileOnly libs.lombok
+    testAnnotationProcessor libs.lombok
+    implementation libs.mapstruct
+    annotationProcessor libs.mapstruct.processor
+    testAnnotationProcessor libs.mapstruct.processor
+    implementation libs.guava
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     implementation group: 'com.github.spotbugs', name: 'spotbugs', version: '4.7.3', ext: 'pom'
     implementation group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: '4.7.3'

@@ -1,5 +1,17 @@
+dependencyResolutionManagement {
+    versionCatalogs {
+        libs {
+            library('lombok', 'org.projectlombok:lombok:1.18.26')
+            library('mapstruct', 'org.mapstruct:mapstruct:1.5.5.Final')
+            library('mapstruct-processor', 'org.mapstruct:mapstruct-processor:1.5.5.Final')
+            bundle('preprocessors', ['lombok', 'mapstruct', 'mapstruct.processor'])
+            library('guava', 'com.google.guava:guava:31.1-jre')
+        }
+    }
+}
+
 rootProject.name = 'observe'
 
+include 'prom4j-core'
 include 'demo-api'
 include 'demo-app'
-include 'prom4j-core'

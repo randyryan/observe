@@ -30,11 +30,11 @@ public interface PromQueryResultMapper {
   @SuppressWarnings("rawtypes")
   PromQueryResult.Sample resultValueToSample(PromQueryResponse.ResultValue resultValue);
 
-  @Mapping(expression = "java(result.getMetric().get(\"name\"))", target = "name")
-  @Mapping(expression = "java(result.getMetric().get(\"job\"))", target = "job")
+  @Mapping(expression = "java(arg0.getMetric().get(\"name\"))", target = "name")
+  @Mapping(expression = "java(arg0.getMetric().get(\"job\"))", target = "job")
   @Mapping(source = "metric", target = "labels")
   @Mapping(source = "value", target = "sample")
-  PromQueryResult.SampleResult vectorResultToSampleResult(PromQueryResponse.VectorResult result);
+  PromQueryResult.SampleResult vectorResultToSampleResult(PromQueryResponse.VectorResult arg0);
 
 
   default List<PromQueryResult.SampleResult> vectorResponseToSampleResult(PromQueryResponse<PromQueryResponse.VectorResult> response) {
@@ -43,11 +43,11 @@ public interface PromQueryResultMapper {
         .collect(Collectors.toList());
   }
 
-  @Mapping(expression = "java(result.getMetric().get(\"name\"))", target="name")
-  @Mapping(expression = "java(result.getMetric().get(\"job\"))", target = "job")
+  @Mapping(expression = "java(arg0.getMetric().get(\"name\"))", target="name")
+  @Mapping(expression = "java(arg0.getMetric().get(\"job\"))", target = "job")
   @Mapping(source = "metric", target = "labels")
   @Mapping(source = "values", target = "samples")
-  PromQueryResult.TimeSeriesResult matrixResultToTimeSeriesResult(PromQueryResponse.MatrixResult result);
+  PromQueryResult.TimeSeriesResult matrixResultToTimeSeriesResult(PromQueryResponse.MatrixResult arg0);
 
   default List<PromQueryResult.TimeSeriesResult> matrixResponseToTimeSeriesResult(PromQueryResponse<PromQueryResponse.MatrixResult> response) {
     return response.getData().getResult().stream()

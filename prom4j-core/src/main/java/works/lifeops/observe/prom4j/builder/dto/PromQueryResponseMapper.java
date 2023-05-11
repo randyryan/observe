@@ -27,9 +27,9 @@ import works.lifeops.observe.prom4j.builder.PromQueryResponse;
 public interface PromQueryResponseMapper {
   PromQueryResponseMapper INSTANCE = Mappers.getMapper(PromQueryResponseMapper.class);
 
-  @Mapping(expression = "java(result.getMetric().get(\"__name__\"))", target="name")
+  @Mapping(expression = "java(arg0.getMetric().get(\"__name__\"))", target="name")
   @Mapping(source = "metric", target = "labels")
-  PromQueryResponseDto.VectorResultDto vectorResultToDto(PromQueryResponse.VectorResult result);
+  PromQueryResponseDto.VectorResultDto vectorResultToDto(PromQueryResponse.VectorResult arg0);
 
   default List<PromQueryResponseDto.VectorResultDto> vectorResponseToDto(PromQueryResponse<PromQueryResponse.VectorResult> response) {
     return response.getData().getResult().stream()
@@ -37,9 +37,9 @@ public interface PromQueryResponseMapper {
         .collect(Collectors.toList());
   }
 
-  @Mapping(expression = "java(result.getMetric().get(\"__name__\"))", target="name")
+  @Mapping(expression = "java(arg0.getMetric().get(\"__name__\"))", target="name")
   @Mapping(source = "metric", target = "labels")
-  PromQueryResponseDto.MatrixResultDto matrixResultToDto(PromQueryResponse.MatrixResult result);
+  PromQueryResponseDto.MatrixResultDto matrixResultToDto(PromQueryResponse.MatrixResult arg0);
 
   default List<PromQueryResponseDto.MatrixResultDto> matrixResponseToDto(PromQueryResponse<PromQueryResponse.MatrixResult> response) {
     return response.getData().getResult().stream()
