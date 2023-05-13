@@ -1,4 +1,5 @@
 prom4j:
+  enabled: true
   prometheus:
     server:
       base-uri: http://localhost:9090

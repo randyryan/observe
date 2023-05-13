@@ -1,6 +1,12 @@
 {
   "properties": [
     {
+      "name": "prom4j.enabled",
+      "type": "java.lang.String",
+      "description": "Denotes if Prom4j for Spring is enabled.",
+      "defaultValue": false
+    },
+    {
       "name": "prom4j.prometheus.server.base-uri",
       "type": "java.lang.String",
       "description": "The base URI of the Prometheus server.",

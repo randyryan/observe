@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @ComponentScan(basePackages = { DemoApiConfiguration.API_PACKAGE })
 public class DemoApiConfiguration {
   public static final String API_PACKAGE = "works.lifeops.observe.demo.api";
+
   @Autowired
   private RequestMappingHandlerMapping requestMappingHandlerMapping;
 
