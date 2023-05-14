@@ -21,8 +21,11 @@ import java.util.List;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
@@ -49,8 +52,10 @@ import works.lifeops.observe.prom4j.builder.PromQueryResponse;
 import works.lifeops.observe.prom4j.builder.PromQueryUriBuilderFactory;
 
 @AutoConfiguration
+@AutoConfigureAfter(WebMvcAutoConfiguration.class)
 @ConditionalOnProperty(prefix = "prom4j", name = "enabled")
 @ConditionalOnWebApplication
+@EnableConfigurationProperties({ Prom4jProperties.class })
 public class Prom4jAutoConfiguration implements InitializingBean, WebMvcConfigurer {
   private static String PROMETHEUS_SERVER_BASE_URI;
 

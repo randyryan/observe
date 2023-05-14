@@ -29,7 +29,7 @@ import com.google.common.escape.Escaper;
 import com.google.common.escape.Escapers;
 
 /**
- * PromQuery utilities. TODO: Split Spring related methods into a Spring dedicated module.
+ * PromQuery utilities.
  *
  * @author Li Wan
  */

@@ -16,14 +16,10 @@ package works.lifeops.observe.demo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
-import works.lifeops.observe.prom4j.Prom4jProperties;
-
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
-@EnableConfigurationProperties({ Prom4jProperties.class })
 @ComponentScan(basePackages = { "works.lifeops.observe" })
 @Import(DemoConfiguration.class)
 public class DemoApplication {

@@ -13,5 +13,6 @@ dependencyResolutionManagement {
 rootProject.name = 'observe'
 
 include 'prom4j-core'
+include 'prom4j-spring-boot-autoconfigure'
 include 'demo-api'
 include 'demo-app'

@@ -13,17 +13,15 @@
  */
 package works.lifeops.observe.demo;
 
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * Demo application configuration. Scans {@code works.lifeops.observe.prom4j} packages until we have a Spring starter.
+ * Demo application configuration.
  *
  * @author Li Wan
  */
 @Configuration
-@ComponentScan(basePackages = { "works.lifeops.observe.prom4j" })
 @Import(DemoApiConfiguration.class)
 public class DemoConfiguration {
 }
