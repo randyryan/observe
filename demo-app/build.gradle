@@ -34,13 +34,11 @@ dependencies {
     testCompileOnly libs.lombok
     testAnnotationProcessor libs.lombok
     implementation libs.guava
-    // Spring Boot
+    // Demo API and Prom4j Spring Boot Starter
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    // API
     implementation project(':demo-api')
-    implementation project(':prom4j-core')
-    implementation project(':prom4j-spring-boot-autoconfigure')
+    implementation project(':prom4j-spring-boot-starter')
     // Test
     testImplementation(platform('org.junit:junit-bom:5.9.2'))
     testImplementation('org.junit.jupiter:junit-jupiter')

@@ -1,0 +1,19 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'works.lifeops.observe'
+version = '0.0.1-SNAPSHOT'
+
+sourceCompatibility = '11'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    annotationProcessor 'org.springframework.boot:spring-boot-autoconfigure-processor'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    api project(':prom4j-core')
+    api project(':prom4j-spring-boot-autoconfigure')
+}

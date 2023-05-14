@@ -14,5 +14,6 @@ rootProject.name = 'observe'
 
 include 'prom4j-core'
 include 'prom4j-spring-boot-autoconfigure'
+include 'prom4j-spring-boot-starter'
 include 'demo-api'
 include 'demo-app'
