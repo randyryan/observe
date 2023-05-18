@@ -24,6 +24,10 @@ import org.springframework.context.annotation.Import;
 @Import(DemoConfiguration.class)
 public class DemoApplication {
   public static void main(String[] args) {
-    SpringApplication.run(DemoApplication.class, args);
+    String[] debugArgs = new String[args.length + 1];
+    System.arraycopy(args, 0, debugArgs, 0, args.length);
+    debugArgs[args.length] = "--debug";
+
+    SpringApplication.run(DemoApplication.class, debugArgs);
   }
 }

@@ -44,7 +44,7 @@ public class DemoApiDelegateImpl implements DemoApiDelegate {
   private final PromQueryResultMapper promResultMapper;
 
   DemoApiDelegateImpl(final PromQueryService promQueryService,
-                        final PromQueryResultMapper promResultMapper) {
+                      final PromQueryResultMapper promResultMapper) {
     this.promQueryService = promQueryService;
     this.promResultMapper = promResultMapper;
   }

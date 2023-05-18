@@ -44,14 +44,19 @@ public class PromQueryService {
   private final UriBuilderFactory uriBuilderFactory;
   private final ObjectMapper objectMapper;
 
-  private PromQueryService(@Qualifier("prom4jWebClient") final WebClient client,
-                           @Qualifier("prom4jRestTemplate") final RestTemplate restTemplate,
-                           @Qualifier("prom4jUriBuilderFactory") final UriBuilderFactory uriBuilderFactory,
-                           @Qualifier("prom4jObjectMapper") final ObjectMapper objectMapper) {
+  public PromQueryService(@Qualifier("prom4jWebClient") final WebClient client,
+                          @Qualifier("prom4jRestTemplate") final RestTemplate restTemplate,
+                          @Qualifier("prom4jUriBuilderFactory") final UriBuilderFactory uriBuilderFactory,
+                          @Qualifier("prom4jObjectMapper") final ObjectMapper objectMapper) {
     this.client = client;
     this.restTemplate = restTemplate;
     this.uriBuilderFactory = uriBuilderFactory;
     this.objectMapper = objectMapper;
+  }
+
+  public String getPrometheusServerBaseUri() {
+    // TODO: Modify configuration to return concrete type as suggested by Spring.
+    return ((PromQueryUriBuilderFactory) uriBuilderFactory).baseUri.toUriString();
   }
 
   /**

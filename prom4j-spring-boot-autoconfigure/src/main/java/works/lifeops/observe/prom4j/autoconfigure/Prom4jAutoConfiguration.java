@@ -18,16 +18,21 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.google.common.base.Strings;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
@@ -49,6 +54,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import works.lifeops.observe.prom4j.Prom4jProperties;
 import works.lifeops.observe.prom4j.builder.PromQueryDeserializer;
 import works.lifeops.observe.prom4j.builder.PromQueryResponse;
+import works.lifeops.observe.prom4j.builder.PromQueryService;
 import works.lifeops.observe.prom4j.builder.PromQueryUriBuilderFactory;
 
 @AutoConfiguration
@@ -63,6 +69,10 @@ public class Prom4jAutoConfiguration implements InitializingBean, WebMvcConfigur
 
   public Prom4jAutoConfiguration(Prom4jProperties prom4jProperties) {
     this.prom4jProperties = prom4jProperties;
+
+    if (Strings.isNullOrEmpty(PROMETHEUS_SERVER_BASE_URI)) {
+      PROMETHEUS_SERVER_BASE_URI = prom4jProperties.getPrometheus().getServer().getBaseUri();
+    }
   }
 
   @Value("${prom4j.prometheus.server.base-uri}/api/v1")
@@ -111,17 +121,25 @@ public class Prom4jAutoConfiguration implements InitializingBean, WebMvcConfigur
 
   @Bean("prom4jWebClient")
   WebClient prom4jWebClient() {
-    ObjectMapper objectMapper = prom4jObjectMapper();
-    // TODO: Add OAuth configuration once the Prometheus server is secured
-    return WebClient.builder()
-        .uriBuilderFactory(prom4jUriBuilderFactory())
-        .codecs(configurer -> {
-          configurer.defaultCodecs().jackson2JsonEncoder(
-              new Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON));
-          configurer.defaultCodecs().jackson2JsonDecoder(
-              new Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON));
-        })
-        .build();
+    return WebClientInstanceHolder.INSTANCE;
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnClass(PromQueryService.class)
+  public static class PromQueryServiceConfiguration {
+    @Bean
+    @ConditionalOnMissingBean
+    public PromQueryService promQueryService() {
+      RestTemplate prom4jRestTemplate = new RestTemplateBuilder()
+          .rootUri(PROMETHEUS_SERVER_BASE_URI)
+          .messageConverters(HttpMessageConverterInstanceHolder.INSTANCE)
+          .build();
+
+      return new PromQueryService(WebClientInstanceHolder.INSTANCE,
+                                  prom4jRestTemplate,
+                                  UriBuilderFactoryInstanceHolder.INSTANCE,
+                                  ObjectMapperInstanceHolder.INSTANCE);
+    }
   }
 
   /**
@@ -140,6 +158,7 @@ public class Prom4jAutoConfiguration implements InitializingBean, WebMvcConfigur
    */
   private static class ObjectMapperInstanceHolder {
     private ObjectMapperInstanceHolder() {}
+
     private static ObjectMapper createInstance() {
       SimpleModule module = new SimpleModule();
       module.addDeserializer(PromQueryResponse.class, new PromQueryDeserializer());
@@ -168,6 +187,7 @@ public class Prom4jAutoConfiguration implements InitializingBean, WebMvcConfigur
    */
   private static class HttpMessageConverterInstanceHolder {
     private HttpMessageConverterInstanceHolder() {}
+
     private static HttpMessageConverter<Object> createInstance() {
       MappingJackson2HttpMessageConverter messageConverter = new MappingJackson2HttpMessageConverter();
       messageConverter.setObjectMapper(ObjectMapperInstanceHolder.INSTANCE);
@@ -176,5 +196,25 @@ public class Prom4jAutoConfiguration implements InitializingBean, WebMvcConfigur
     }
 
      private static HttpMessageConverter<Object> INSTANCE = createInstance();
+  }
+
+  private static class WebClientInstanceHolder {
+    private WebClientInstanceHolder() {}
+
+    private static WebClient createInstance() {
+      ObjectMapper objectMapper = ObjectMapperInstanceHolder.INSTANCE;
+      // TODO: Add OAuth configuration once the Prometheus server is secured
+      return WebClient.builder()
+          .uriBuilderFactory(UriBuilderFactoryInstanceHolder.INSTANCE)
+          .codecs(configurer -> {
+            configurer.defaultCodecs().jackson2JsonEncoder(
+                new Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON));
+            configurer.defaultCodecs().jackson2JsonDecoder(
+                new Jackson2JsonDecoder(objectMapper, MediaType.APPLICATION_JSON));
+          })
+          .build();
+    }
+
+    private static WebClient INSTANCE = createInstance();
   }
 }
