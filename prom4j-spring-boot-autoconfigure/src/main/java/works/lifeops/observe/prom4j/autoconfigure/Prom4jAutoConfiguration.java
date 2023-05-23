@@ -56,6 +56,7 @@ import works.lifeops.observe.prom4j.builder.PromQueryDeserializer;
 import works.lifeops.observe.prom4j.builder.PromQueryResponse;
 import works.lifeops.observe.prom4j.builder.PromQueryService;
 import works.lifeops.observe.prom4j.builder.PromQueryUriBuilderFactory;
+import works.lifeops.observe.prom4j.builder.dto.PromQueryResultMapper;
 
 @AutoConfiguration
 @AutoConfigureAfter({ WebMvcAutoConfiguration.class })
@@ -140,6 +141,11 @@ public class Prom4jAutoConfiguration implements InitializingBean, WebMvcConfigur
                                   UriBuilderFactoryInstanceHolder.INSTANCE,
                                   ObjectMapperInstanceHolder.INSTANCE);
     }
+  }
+
+  @Bean
+  PromQueryResultMapper promQueryResultMapper() {
+    return PromQueryResultMapper.INSTANCE;
   }
 
   private static class UriBuilderFactoryInstanceHolder {

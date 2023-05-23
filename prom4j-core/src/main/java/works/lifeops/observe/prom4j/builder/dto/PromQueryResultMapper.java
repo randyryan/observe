@@ -22,7 +22,7 @@ import org.mapstruct.factory.Mappers;
 
 import works.lifeops.observe.prom4j.builder.PromQueryResponse;
 
-@Mapper(componentModel = "spring")
+@Mapper
 public interface PromQueryResultMapper {
 
   PromQueryResultMapper INSTANCE = Mappers.getMapper(PromQueryResultMapper.class);

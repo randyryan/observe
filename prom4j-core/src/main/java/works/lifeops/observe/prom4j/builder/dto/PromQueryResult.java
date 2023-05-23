@@ -20,6 +20,7 @@ import works.lifeops.observe.prom4j.builder.PromQueryResponse;
 
 /**
  * A more end-user form of {@link PromQueryResponseDto}. This class could be a "template" of generated end-user types.
+ * This type is more result-oriented compared to {@link PromQueryResponseDto}.
  *
  * @author Li Wan
  */

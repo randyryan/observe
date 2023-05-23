@@ -22,7 +22,6 @@ import org.mapstruct.factory.Mappers;
 
 import works.lifeops.observe.prom4j.builder.PromQueryResponse;
 
-
 @Mapper
 public interface PromQueryResponseMapper {
   PromQueryResponseMapper INSTANCE = Mappers.getMapper(PromQueryResponseMapper.class);

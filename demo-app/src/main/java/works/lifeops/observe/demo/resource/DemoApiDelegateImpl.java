@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import lombok.extern.slf4j.Slf4j;
 import works.lifeops.observe.prom4j.api.DemoApiDelegate;
 import works.lifeops.observe.prom4j.api.dto.ChartSampleDto;
 import works.lifeops.observe.prom4j.api.dto.SampleDto;
@@ -37,7 +36,6 @@ import works.lifeops.observe.prom4j.builder.dto.PromQueryResultMapper;
  *
  * @author Li Wan
  */
-@Slf4j
 @Component
 public class DemoApiDelegateImpl implements DemoApiDelegate {
   private final PromQueryService promQueryService;
