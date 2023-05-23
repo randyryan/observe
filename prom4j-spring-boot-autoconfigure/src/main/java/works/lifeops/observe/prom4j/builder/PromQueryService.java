@@ -17,6 +17,7 @@ import static works.lifeops.observe.prom4j.builder.PromQueries.TEST_QUERY;
 import static works.lifeops.observe.prom4j.builder.PromQueries.createUriFunc;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,6 +34,8 @@ import com.google.common.annotations.Beta;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import works.lifeops.observe.prom4j.builder.dto.PromQueryResult;
+import works.lifeops.observe.prom4j.builder.dto.PromQueryResultMapper;
 
 @Beta
 @SuppressWarnings("unused")
@@ -43,15 +46,18 @@ public class PromQueryService {
   private final RestTemplate restTemplate;
   private final UriBuilderFactory uriBuilderFactory;
   private final ObjectMapper objectMapper;
+  private final PromQueryResultMapper resultMapper;
 
   public PromQueryService(@Qualifier("prom4jWebClient") final WebClient client,
                           @Qualifier("prom4jRestTemplate") final RestTemplate restTemplate,
                           @Qualifier("prom4jUriBuilderFactory") final UriBuilderFactory uriBuilderFactory,
-                          @Qualifier("prom4jObjectMapper") final ObjectMapper objectMapper) {
+                          @Qualifier("prom4jObjectMapper") final ObjectMapper objectMapper,
+                          @Qualifier("promQueryResultMapper") final PromQueryResultMapper resultMapper) {
     this.client = client;
     this.restTemplate = restTemplate;
     this.uriBuilderFactory = uriBuilderFactory;
     this.objectMapper = objectMapper;
+    this.resultMapper = resultMapper;
   }
 
   public String getPrometheusServerBaseUri() {
@@ -66,11 +72,6 @@ public class PromQueryService {
     return client.get().uri(createUriFunc(promQuery)).retrieve().bodyToMono(new ParameterizedTypeReference<>() {});
   }
 
-  public void test(Optional<PromQuery> query) {
-    query(query.orElse(TEST_QUERY)).subscribe(response ->
-        log.info("Test query \"{}\" got response = {}", query.orElse(TEST_QUERY), response.toString()));
-  }
-
   /**
    * Query with blocking using the {@link RestTemplate} (Spring WebMVC).
    */
@@ -79,9 +80,30 @@ public class PromQueryService {
       return restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
   }
 
+  public void test(Optional<PromQuery> query) {
+    query(query.orElse(TEST_QUERY)).subscribe(response ->
+        log.info("Test query \"{}\" got response = {}", query.orElse(TEST_QUERY), response.toString()));
+  }
+
   public void testBlocking(Optional<PromQuery> query) {
     ResponseEntity<PromQueryResponse<PromQueryResponse.VectorResult>> response =
         queryBlocking(query.orElse(TEST_QUERY));
     log.info("Test query blocking \"{}\" got response = {}", query.orElse(TEST_QUERY), response.getBody().toString());
+  }
+
+  public List<PromQueryResult.SampleResult> getSamples(PromQuery.InstantQuery instantQuery) {
+    PromQueryResponse<PromQueryResponse.VectorResult> response = this
+        .<PromQueryResponse.VectorResult>queryBlocking(instantQuery)
+        .getBody();
+
+    return resultMapper.vectorResponseToSampleResult(response);
+  }
+
+  public List<PromQueryResult.TimeSeriesResult> getTimeSeries(PromQuery promQuery) {
+    PromQueryResponse<PromQueryResponse.MatrixResult> response = this
+        .<PromQueryResponse.MatrixResult>queryBlocking(promQuery)
+        .getBody();
+
+    return resultMapper.matrixResponseToTimeSeriesResult(response);
   }
 }

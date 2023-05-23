@@ -26,10 +26,7 @@ import works.lifeops.observe.prom4j.api.dto.ChartSampleDto;
 import works.lifeops.observe.prom4j.api.dto.SampleDto;
 import works.lifeops.observe.prom4j.api.dto.TimeSeriesDto;
 import works.lifeops.observe.prom4j.builder.PromQuery;
-import works.lifeops.observe.prom4j.builder.PromQueryResponse;
 import works.lifeops.observe.prom4j.builder.PromQueryService;
-import works.lifeops.observe.prom4j.builder.dto.PromQueryResult;
-import works.lifeops.observe.prom4j.builder.dto.PromQueryResultMapper;
 
 /**
  * Showcase how you can use prom4j.
@@ -39,25 +36,19 @@ import works.lifeops.observe.prom4j.builder.dto.PromQueryResultMapper;
 @Component
 public class DemoApiDelegateImpl implements DemoApiDelegate {
   private final PromQueryService promQueryService;
-  private final PromQueryResultMapper promResultMapper;
 
-  DemoApiDelegateImpl(final PromQueryService promQueryService,
-                      final PromQueryResultMapper promResultMapper) {
+  DemoApiDelegateImpl(final PromQueryService promQueryService) {
     this.promQueryService = promQueryService;
-    this.promResultMapper = promResultMapper;
   }
 
   @Override
   public ResponseEntity<SampleDto> getGoThreads() {
-    PromQuery promQuery = PromQuery.builder()
+    PromQuery.InstantQuery promQuery = PromQuery.builder()
         .instant()
         .metric("go_threads")
         .build();
-    PromQueryResponse<PromQueryResponse.VectorResult> response = promQueryService
-        .<PromQueryResponse.VectorResult>queryBlocking(promQuery)
-        .getBody();
-    List<PromQueryResult.SampleResult> results = promResultMapper.vectorResponseToSampleResult(response);
-    List<SampleDto> samples = results.stream()
+
+    List<SampleDto> samples = promQueryService.getSamples(promQuery).stream()
         .map(result -> {
           SampleDto sample = new SampleDto();
           sample.setDate(result.getSample().getOffsetDateTime());
@@ -78,11 +69,8 @@ public class DemoApiDelegateImpl implements DemoApiDelegate {
         .end(end.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
         .step(step)
         .build();
-    PromQueryResponse<PromQueryResponse.MatrixResult> response = promQueryService
-        .<PromQueryResponse.MatrixResult>queryBlocking(promQuery)
-        .getBody();
-    List<PromQueryResult.TimeSeriesResult> results = promResultMapper.matrixResponseToTimeSeriesResult(response);
-    List<TimeSeriesDto> timeSerieses = results.stream()
+
+    List<TimeSeriesDto> timeSerieses = promQueryService.getTimeSeries(promQuery).stream()
         .map(result -> {
           TimeSeriesDto timeSeries = new TimeSeriesDto();
           result.getSamples().forEach(sample -> {

@@ -135,11 +135,13 @@ public class Prom4jAutoConfiguration implements InitializingBean, WebMvcConfigur
     @Bean
     @ConditionalOnMissingBean
     PromQueryService promQueryService(@Qualifier("prom4jWebClient") WebClient prom4jWebClient,
-                                             @Qualifier("prom4jRestTemplate") RestTemplate prom4jRestTemplate) {
+                                      @Qualifier("prom4jRestTemplate") RestTemplate prom4jRestTemplate,
+                                      @Qualifier("promQueryResultMapper") PromQueryResultMapper resultMapper) {
       return new PromQueryService(prom4jWebClient,
                                   prom4jRestTemplate,
                                   UriBuilderFactoryInstanceHolder.INSTANCE,
-                                  ObjectMapperInstanceHolder.INSTANCE);
+                                  ObjectMapperInstanceHolder.INSTANCE,
+                                  resultMapper);
     }
   }
 
