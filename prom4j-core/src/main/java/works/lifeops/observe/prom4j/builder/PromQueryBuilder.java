@@ -349,6 +349,10 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
     }
 
     public String build() {
+      if (operator == null && value == null) {
+        // Optional.empty() was passed to in or notIn
+        return "";
+      }
       return String.format("%s%s%s", label, operator, value);
     }
   }

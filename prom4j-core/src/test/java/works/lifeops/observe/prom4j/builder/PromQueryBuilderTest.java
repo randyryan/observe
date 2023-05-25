@@ -111,6 +111,13 @@ public class PromQueryBuilderTest {
   }
 
   @Test
+  public void labelOptionalOfNull() {
+    PromQueryBuilder.LabelBuilder label = PromQuery.label("job").in(Optional.empty());
+
+    Assertions.assertEquals("", label.build(), "None values properly built");
+  }
+
+  @Test
   public void labelsNewSemantics() {
     PromQuery promQuery0 = PromQuery.builder()
         .instant()
