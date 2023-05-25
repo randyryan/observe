@@ -138,6 +138,19 @@ public class PromQueryBuilderTest {
   }
 
   @Test
+  public void labelsNewSemanticsWithOptionalOfNull() {
+    PromQuery promQuery = PromQuery.builder()
+            .instant()
+            .labels(
+                    label("job").is("prometheus"),
+                    label("instance").in(Optional.empty())
+            )
+            .build();
+
+    System.out.println(promQuery.toString());
+  }
+
+  @Test
   public void metricAndLabel() {
     PromQuery query = PromQuery.builder()
         .instant()

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import lombok.Setter;
@@ -66,27 +67,47 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
   }
 
   public B label(LabelBuilder labelBuilder) {
-    criteria.add(labelBuilder.build());
+    String criterion = labelBuilder.build();
+    if (!Strings.isNullOrEmpty(criterion)) {
+      // After LabelBuilder.build() returns "", we need to exclude these.
+      // TODO: Avoid "patching" like this, think of way to avoid building label when empty was passed.
+      criteria.add(criterion);
+    }
     return (B) this;
   }
 
   public B labels(LabelBuilder... labelBuilders) {
     for (LabelBuilder labelBuilder : labelBuilders) {
-      criteria.add(labelBuilder.build());
+      String criterion = labelBuilder.build();
+      if (!Strings.isNullOrEmpty(criterion)) {
+        // After LabelBuilder.build() returns "", we need to exclude these.
+        // TODO: Avoid "patching" like this, think of way to avoid building label when empty was passed.
+        criteria.add(criterion);
+      }
     }
     return (B) this;
   }
 
   public B labels(Collection<? extends LabelBuilder> labelBuilders) {
     for (LabelBuilder labelBuilder : labelBuilders) {
-      criteria.add(labelBuilder.build());
+      String criterion = labelBuilder.build();
+      if (!Strings.isNullOrEmpty(criterion)) {
+        // After LabelBuilder.build() returns "", we need to exclude these.
+        // TODO: Avoid "patching" like this, think of way to avoid building label when empty was passed.
+        criteria.add(criterion);
+      }
     }
     return (B) this;
   }
 
   public B labels(Iterable<? extends LabelBuilder> labelBuilders) {
     for (LabelBuilder labelBuilder : labelBuilders) {
-      criteria.add(labelBuilder.build());
+      String criterion = labelBuilder.build();
+      if (!Strings.isNullOrEmpty(criterion)) {
+        // After LabelBuilder.build() returns "", we need to exclude these.
+        // TODO: Avoid "patching" like this, think of way to avoid building label when empty was passed.
+        criteria.add(criterion);
+      }
     }
     return (B) this;
   }
