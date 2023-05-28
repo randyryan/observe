@@ -70,7 +70,13 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
    */
   @lombok.Data
   public static class Data<R extends PromQueryResponse.Result> {
+    /**
+     * "resultType" exists in response for Scalar, String, Vector, Matrix, not exists in Series, Labels, Label values.
+     */
     private PromQueryResponse.ResultType resultType;
+    /**
+     * For Series, Labels, and Label values, "result" is a type of {@link Map} or {@link List}.
+     */
     private List<R> result;
 
     public Data() {
@@ -124,7 +130,7 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
    * Maps the "result" node under the "data" node.
    */
   public static abstract class Result {
-    protected Map<String, String> metric;
+//    protected Map<String, String> metric;
   }
 
   /**
@@ -168,6 +174,10 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
     }
   }
 
+  // TODO: public static class ScalarResult {}
+
+  // TODO: public static class StringResult {}
+
   @lombok.Data
   @lombok.EqualsAndHashCode(callSuper = false)
   public static class VectorResult extends Result {
@@ -196,6 +206,8 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
       // since this even need to set each value individually.
     }
   }
+
+  // public static class SeriesResult {} no need a
 
   // PromQueryResponse
 

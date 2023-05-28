@@ -140,14 +140,14 @@ public class PromQueryBuilderTest {
   @Test
   public void labelsNewSemanticsWithOptionalOfNull() {
     PromQuery promQuery = PromQuery.builder()
-            .instant()
-            .labels(
-                    label("job").is("prometheus"),
-                    label("instance").in(Optional.empty())
-            )
-            .build();
+        .instant()
+        .labels(
+            label("job").is("prometheus"),
+            label("instance").in(Optional.empty())
+        )
+        .build();
 
-    System.out.println(promQuery.toString());
+    Assertions.assertEquals("{job=\"prometheus\"}", promQuery.toString(), "Optional of null label is not included");
   }
 
   @Test

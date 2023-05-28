@@ -106,4 +106,6 @@ public class PromQueryService {
 
     return resultMapper.matrixResponseToTimeSeriesResult(response);
   }
+
+  // public abstract <R> List<PromQueryResult<R>> getResult(PromQuery<R> promQuery);
 }
