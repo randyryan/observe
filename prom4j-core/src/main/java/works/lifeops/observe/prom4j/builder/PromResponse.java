@@ -30,7 +30,7 @@ import com.google.common.collect.Lists;
 @Beta
 @lombok.Data
 @lombok.ToString
-public class PromQueryResponse<R extends PromQueryResponse.Result> {
+public class PromResponse<R extends PromResponse.Result> {
   /**
    * Maps the "status" node under the JSON root.
    */
@@ -64,18 +64,19 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
   }
 
   /**
-   * Maps the "data" node under the JSON root.
+   * Maps the "data" node under the JSON root. Such structure/schema only applies to Scalar, String, Vector, and Matrix
+   * responses. For Series, Labels, and Label values, the "data" is directly a type of {@link Map} or {@link List}.
    *
    * @param <R> derivative type of the {@link Result}.
    */
   @lombok.Data
-  public static class Data<R extends PromQueryResponse.Result> {
+  public static class Data<R extends PromResponse.Result> {
     /**
-     * "resultType" exists in response for Scalar, String, Vector, Matrix, not exists in Series, Labels, Label values.
+     * "resultType" exists in response for Scalar, String, Vector, and Matrix.
      */
-    private PromQueryResponse.ResultType resultType;
+    private PromResponse.ResultType resultType;
     /**
-     * For Series, Labels, and Label values, "result" is a type of {@link Map} or {@link List}.
+     * "result" exists in response for Scalar, String, Vector, and Matrix.
      */
     private List<R> result;
 
@@ -154,11 +155,11 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
     }
 
     /**
-     * Returns the {@link PromQueryResponse.Result} that owns this value. Used when processing stream of values for
+     * Returns the {@link PromResponse.Result} that owns this value. Used when processing stream of values for
      * scenarios like converting them into a chart's data where it needs to add the metrics information, we can use
      * this method to reference the result that this value belongs to.
      *
-     * @return the {@link PromQueryResponse.Result} that owns this value.
+     * @return the {@link PromResponse.Result} that owns this value.
      */
     public R getResult() {
       return result;
@@ -209,16 +210,16 @@ public class PromQueryResponse<R extends PromQueryResponse.Result> {
 
   // public static class SeriesResult {} no need a
 
-  // PromQueryResponse
+  // PromResponse
 
   private Status status;
   private Data<R> data;
 
-  public PromQueryResponse() {
+  public PromResponse() {
     data = new Data<R>();
   }
 
-  public boolean hasResultOfType(PromQueryResponse.ResultType resultType) {
+  public boolean hasResultOfType(PromResponse.ResultType resultType) {
     return getData().getResultType().is(resultType);
   }
 }

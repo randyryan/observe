@@ -68,14 +68,14 @@ public class PromQueryService {
   /**
    * Query asynchronously using the {@link WebClient} (Spring WebFlux).
    */
-  public <R extends PromQueryResponse.Result> Mono<PromQueryResponse<R>> query(PromQuery promQuery) {
+  public <R extends PromResponse.Result> Mono<PromResponse<R>> query(PromQuery promQuery) {
     return client.get().uri(createUriFunc(promQuery)).retrieve().bodyToMono(new ParameterizedTypeReference<>() {});
   }
 
   /**
    * Query with blocking using the {@link RestTemplate} (Spring WebMVC).
    */
-  public <R extends PromQueryResponse.Result> ResponseEntity<PromQueryResponse<R>> queryBlocking(PromQuery promQuery) {
+  public <R extends PromResponse.Result> ResponseEntity<PromResponse<R>> queryBlocking(PromQuery promQuery) {
       URI uri = PromQueries.createUri(uriBuilderFactory.builder(), promQuery);
       return restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
   }
@@ -86,22 +86,22 @@ public class PromQueryService {
   }
 
   public void testBlocking(Optional<PromQuery> query) {
-    ResponseEntity<PromQueryResponse<PromQueryResponse.VectorResult>> response =
+    ResponseEntity<PromResponse<PromResponse.VectorResult>> response =
         queryBlocking(query.orElse(TEST_QUERY));
     log.info("Test query blocking \"{}\" got response = {}", query.orElse(TEST_QUERY), response.getBody().toString());
   }
 
   public List<PromQueryResult.SampleResult> getSamples(PromQuery.InstantQuery instantQuery) {
-    PromQueryResponse<PromQueryResponse.VectorResult> response = this
-        .<PromQueryResponse.VectorResult>queryBlocking(instantQuery)
+    PromResponse<PromResponse.VectorResult> response = this
+        .<PromResponse.VectorResult>queryBlocking(instantQuery)
         .getBody();
 
     return resultMapper.vectorResponseToSampleResult(response);
   }
 
   public List<PromQueryResult.TimeSeriesResult> getTimeSeries(PromQuery promQuery) {
-    PromQueryResponse<PromQueryResponse.MatrixResult> response = this
-        .<PromQueryResponse.MatrixResult>queryBlocking(promQuery)
+    PromResponse<PromResponse.MatrixResult> response = this
+        .<PromResponse.MatrixResult>queryBlocking(promQuery)
         .getBody();
 
     return resultMapper.matrixResponseToTimeSeriesResult(response);

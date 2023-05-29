@@ -28,9 +28,9 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-public class PromQueryResponseTest {
-  private static final TypeReference<PromQueryResponse<PromQueryResponse.VectorResult>> TYPE_REF =
-      new TypeReference<PromQueryResponse<PromQueryResponse.VectorResult>>() {};
+public class PromResponseTest {
+  private static final TypeReference<PromResponse<PromResponse.VectorResult>> TYPE_REF =
+      new TypeReference<PromResponse<PromResponse.VectorResult>>() {};
 
   private ObjectMapper objectMapper;
   private InputStream queryVectorMultiple;
@@ -38,7 +38,7 @@ public class PromQueryResponseTest {
   @BeforeEach
   public void setUp() {
     SimpleModule module = new SimpleModule();
-    module.addDeserializer(PromQueryResponse.class, new PromQueryDeserializer());
+    module.addDeserializer(PromResponse.class, new PromResponseDserializer());
 
     objectMapper = JsonMapper.builder()
         .addModule(module)
@@ -50,7 +50,7 @@ public class PromQueryResponseTest {
 
   @Test
   public void testGetOffsetDateTime() throws StreamReadException, DatabindException, IOException {
-    PromQueryResponse<PromQueryResponse.VectorResult> response = objectMapper.readValue(queryVectorMultiple, TYPE_REF);
+    PromResponse<PromResponse.VectorResult> response = objectMapper.readValue(queryVectorMultiple, TYPE_REF);
 
     Assertions.assertEquals(
         "2023-04-18T13:30:00.331Z",

@@ -40,7 +40,7 @@ public class PromQueryDeserializerTest {
   @BeforeEach
   public void setUp() {
     SimpleModule module = new SimpleModule();
-    module.addDeserializer(PromQueryResponse.class, new PromQueryDeserializer());
+    module.addDeserializer(PromResponse.class, new PromResponseDserializer());
 
     objectMapper = JsonMapper.builder()
         .addModule(module)
@@ -52,20 +52,20 @@ public class PromQueryDeserializerTest {
 
   @Test
   public void testVectorResult() throws JsonMappingException, JsonProcessingException, IOException {
-    PromQueryResponse<PromQueryResponse.VectorResult> response =
-        objectMapper.readValue(queryVector, new TypeReference<PromQueryResponse<PromQueryResponse.VectorResult>>() {});
+    PromResponse<PromResponse.VectorResult> response =
+        objectMapper.readValue(queryVector, new TypeReference<PromResponse<PromResponse.VectorResult>>() {});
 
     Map<String, String> metric = Maps.newLinkedHashMap();
     metric.put("__name__", "go_threads");
     metric.put("instance", "localhost:9090");
     metric.put("job", "prometheus");
-    PromQueryResponse.ResultValue<PromQueryResponse.VectorResult> value =
-        PromQueryResponse.ResultValue.of(1681824600, "10");
-    PromQueryResponse.VectorResult resultItem = new PromQueryResponse.VectorResult(metric, value);
+    PromResponse.ResultValue<PromResponse.VectorResult> value =
+        PromResponse.ResultValue.of(1681824600, "10");
+    PromResponse.VectorResult resultItem = new PromResponse.VectorResult(metric, value);
 
-    Assertions.assertEquals(PromQueryResponse.Status.SUCCESS, response.getStatus(),
+    Assertions.assertEquals(PromResponse.Status.SUCCESS, response.getStatus(),
         "response.status is properly deserialized");
-    Assertions.assertEquals(PromQueryResponse.ResultType.VECTOR, response.getData().getResultType(),
+    Assertions.assertEquals(PromResponse.ResultType.VECTOR, response.getData().getResultType(),
         "response.data.resultType is properly deserialized");
     // rough comparison
     Assertions.assertEquals(1, response.getData().getResult().size(),
@@ -85,22 +85,22 @@ public class PromQueryDeserializerTest {
     metric.put("__name__", "go_threads");
     metric.put("instance", "localhost:9090");
     metric.put("job", "prometheus");
-    List<PromQueryResponse.ResultValue<PromQueryResponse.MatrixResult>> values = Lists.newArrayList();
-    values.add(PromQueryResponse.ResultValue.of(1681824540, "10"));
-    values.add(PromQueryResponse.ResultValue.of(1681824550, "10"));
-    values.add(PromQueryResponse.ResultValue.of(1681824560, "10"));
-    values.add(PromQueryResponse.ResultValue.of(1681824570, "10"));
-    values.add(PromQueryResponse.ResultValue.of(1681824580, "10"));
-    values.add(PromQueryResponse.ResultValue.of(1681824590, "10"));
-    values.add(PromQueryResponse.ResultValue.of(1681824600, "10"));
-    PromQueryResponse.MatrixResult resultItem = new PromQueryResponse.MatrixResult(metric, values);
+    List<PromResponse.ResultValue<PromResponse.MatrixResult>> values = Lists.newArrayList();
+    values.add(PromResponse.ResultValue.of(1681824540, "10"));
+    values.add(PromResponse.ResultValue.of(1681824550, "10"));
+    values.add(PromResponse.ResultValue.of(1681824560, "10"));
+    values.add(PromResponse.ResultValue.of(1681824570, "10"));
+    values.add(PromResponse.ResultValue.of(1681824580, "10"));
+    values.add(PromResponse.ResultValue.of(1681824590, "10"));
+    values.add(PromResponse.ResultValue.of(1681824600, "10"));
+    PromResponse.MatrixResult resultItem = new PromResponse.MatrixResult(metric, values);
 
-    PromQueryResponse<PromQueryResponse.MatrixResult> response =
-        objectMapper.readValue(queryMatrix, new TypeReference<PromQueryResponse<PromQueryResponse.MatrixResult>>() {});
+    PromResponse<PromResponse.MatrixResult> response =
+        objectMapper.readValue(queryMatrix, new TypeReference<PromResponse<PromResponse.MatrixResult>>() {});
 
-    Assertions.assertEquals(PromQueryResponse.Status.SUCCESS, response.getStatus(),
+    Assertions.assertEquals(PromResponse.Status.SUCCESS, response.getStatus(),
         "response.status is properly deserialized");
-    Assertions.assertEquals(PromQueryResponse.ResultType.MATRIX, response.getData().getResultType(),
+    Assertions.assertEquals(PromResponse.ResultType.MATRIX, response.getData().getResultType(),
         "response.data.resultType is properly deserialized");
     // rough comparison
     Assertions.assertEquals(1, response.getData().getResult().size(),

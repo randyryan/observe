@@ -52,8 +52,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.base.Strings;
 
 import works.lifeops.observe.prom4j.Prom4jProperties;
-import works.lifeops.observe.prom4j.builder.PromQueryDeserializer;
-import works.lifeops.observe.prom4j.builder.PromQueryResponse;
+import works.lifeops.observe.prom4j.builder.PromResponseDserializer;
+import works.lifeops.observe.prom4j.builder.PromResponse;
 import works.lifeops.observe.prom4j.builder.PromQueryService;
 import works.lifeops.observe.prom4j.builder.PromQueryUriBuilderFactory;
 import works.lifeops.observe.prom4j.builder.dto.PromQueryResultMapper;
@@ -161,7 +161,7 @@ public class Prom4jAutoConfiguration implements InitializingBean, WebMvcConfigur
 
     private static ObjectMapper createInstance() {
       SimpleModule module = new SimpleModule();
-      module.addDeserializer(PromQueryResponse.class, new PromQueryDeserializer());
+      module.addDeserializer(PromResponse.class, new PromResponseDserializer());
       // Unfortunately the JavaTimeModule, who has a serializer for OffsetDateTime, didn't work.
       module.addSerializer(new StdSerializer<OffsetDateTime>(OffsetDateTime.class) {
         private static final long serialVersionUID = 1L;

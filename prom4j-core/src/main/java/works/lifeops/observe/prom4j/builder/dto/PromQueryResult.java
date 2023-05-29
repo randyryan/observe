@@ -16,11 +16,11 @@ package works.lifeops.observe.prom4j.builder.dto;
 import java.util.List;
 import java.util.Map;
 
-import works.lifeops.observe.prom4j.builder.PromQueryResponse;
+import works.lifeops.observe.prom4j.builder.PromResponse;
 
 /**
- * A more end-user form of {@link PromQueryResponseDto}. This class could be a "template" of generated end-user types.
- * This type is more result-oriented compared to {@link PromQueryResponseDto}.
+ * A more end-user form of {@link PromResponseDto}. This class could be a "template" of generated end-user types.
+ * This type is more result-oriented compared to {@link PromResponseDto}.
  *
  * @author Li Wan
  */
@@ -36,14 +36,14 @@ public abstract class PromQueryResult {
    * Note: This type is only to remove the excessive generics introduced by referencing back to Result in ResultValue.
    */
   @SuppressWarnings("rawtypes")
-  public static final class Sample extends PromQueryResponse.ResultValue {
+  public static final class Sample extends PromResponse.ResultValue {
     protected Sample(double epochDateTime, String value) {
       super(epochDateTime, value);
     }
   }
 
   /**
-   * An end-user form of {@link PromQueryResponseDto.VectorResultDto}.
+   * An end-user form of {@link PromResponseDto.VectorResultDto}.
    */
   @lombok.Data
   @lombok.ToString
@@ -53,7 +53,7 @@ public abstract class PromQueryResult {
   }
 
   /**
-   * An end-user form of {@link PromQueryResponseDto.MatrixResultDto}
+   * An end-user form of {@link PromResponseDto.MatrixResultDto}
    */
   @lombok.Data
   @lombok.ToString
