@@ -56,7 +56,7 @@ import works.lifeops.observe.prom4j.builder.PromResponseDserializer;
 import works.lifeops.observe.prom4j.builder.PromResponse;
 import works.lifeops.observe.prom4j.builder.PromQueryService;
 import works.lifeops.observe.prom4j.builder.PromQueryUriBuilderFactory;
-import works.lifeops.observe.prom4j.builder.dto.PromQueryResultMapper;
+import works.lifeops.observe.prom4j.builder.dto.PromResultMapper;
 
 @AutoConfiguration
 @AutoConfigureAfter({ WebMvcAutoConfiguration.class })
@@ -136,7 +136,7 @@ public class Prom4jAutoConfiguration implements InitializingBean, WebMvcConfigur
     @ConditionalOnMissingBean
     PromQueryService promQueryService(@Qualifier("prom4jWebClient") WebClient prom4jWebClient,
                                       @Qualifier("prom4jRestTemplate") RestTemplate prom4jRestTemplate,
-                                      @Qualifier("promQueryResultMapper") PromQueryResultMapper resultMapper) {
+                                      @Qualifier("promResultMapper") PromResultMapper resultMapper) {
       return new PromQueryService(prom4jWebClient,
                                   prom4jRestTemplate,
                                   UriBuilderFactoryInstanceHolder.INSTANCE,
@@ -146,8 +146,8 @@ public class Prom4jAutoConfiguration implements InitializingBean, WebMvcConfigur
   }
 
   @Bean
-  PromQueryResultMapper promQueryResultMapper() {
-    return PromQueryResultMapper.INSTANCE;
+  PromResultMapper promResultMapper() {
+    return PromResultMapper.INSTANCE;
   }
 
   private static class UriBuilderFactoryInstanceHolder {

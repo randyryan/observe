@@ -25,7 +25,7 @@ import works.lifeops.observe.prom4j.builder.PromResponse;
  * @author Li Wan
  */
 @lombok.Data
-public abstract class PromQueryResult {
+public abstract class PromResult {
   private String name;
   private String job;
   private Map<String, String> labels;
@@ -48,8 +48,8 @@ public abstract class PromQueryResult {
   @lombok.Data
   @lombok.ToString
   @lombok.EqualsAndHashCode(callSuper = false)
-  public static final class SampleResult extends PromQueryResult {
-    private PromQueryResult.Sample sample;
+  public static final class SampleResult extends PromResult {
+    private PromResult.Sample sample;
   }
 
   /**
@@ -58,7 +58,7 @@ public abstract class PromQueryResult {
   @lombok.Data
   @lombok.ToString
   @lombok.EqualsAndHashCode(callSuper = false)
-  public static final class TimeSeriesResult extends PromQueryResult {
-    private List<PromQueryResult.Sample> samples;
+  public static final class TimeSeriesResult extends PromResult {
+    private List<PromResult.Sample> samples;
   }
 }

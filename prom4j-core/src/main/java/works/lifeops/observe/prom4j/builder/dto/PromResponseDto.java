@@ -20,7 +20,7 @@ import works.lifeops.observe.prom4j.builder.PromResponse;
 
 /**
  * DTO of the "data.result" part of a {@link PromResponse}.
- * This type is more response-centric than it is with {@link PromQueryResult}.
+ * This type is more response-centric than it is with {@link PromResult}.
  *
  * The structure/hierarchy has been flattened to some extent compared to PromResponse.
  *

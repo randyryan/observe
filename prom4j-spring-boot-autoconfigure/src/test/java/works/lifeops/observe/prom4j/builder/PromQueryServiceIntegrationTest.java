@@ -20,15 +20,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import works.lifeops.observe.prom4j.builder.dto.PromQueryResult;
-import works.lifeops.observe.prom4j.builder.dto.PromQueryResultMapper;
+import works.lifeops.observe.prom4j.builder.dto.PromResult;
+import works.lifeops.observe.prom4j.builder.dto.PromResultMapper;
 
 @SpringBootTest
 public class PromQueryServiceIntegrationTest {
   @Autowired
   private PromQueryService promQueryService;
   @Autowired
-  private PromQueryResultMapper promResultMapper;
+  private PromResultMapper promResultMapper;
 
   @Test
   public void testBlocking() {
@@ -50,14 +50,14 @@ public class PromQueryServiceIntegrationTest {
         .time(now.toString())
         .build();
 
-    PromQueryResponse<PromQueryResponse.VectorResult> response1 = promQueryService
-        .<PromQueryResponse.VectorResult>queryBlocking(query0)
+    PromResponse<PromResponse.VectorResult> response1 = promQueryService
+        .<PromResponse.VectorResult>queryBlocking(query0)
         .getBody();
-    PromQueryResponse<PromQueryResponse.VectorResult> response2 = promQueryService
-        .<PromQueryResponse.VectorResult>queryBlocking(query1)
+    PromResponse<PromResponse.VectorResult> response2 = promQueryService
+        .<PromResponse.VectorResult>queryBlocking(query1)
         .getBody();
 
-    PromQueryResult.SampleResult sample1 = promResultMapper.vectorResponseToSampleResult(response1).get(0);
+    PromResult.SampleResult sample1 = promResultMapper.vectorResponseToSampleResult(response1).get(0);
     System.out.println(sample1);
   }
 

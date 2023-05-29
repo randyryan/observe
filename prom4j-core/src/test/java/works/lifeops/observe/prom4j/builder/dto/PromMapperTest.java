@@ -36,14 +36,14 @@ import works.lifeops.observe.prom4j.builder.PromResponseDserializer;
  * it is a type for the querying parts and is not very suitable for us to write logics with. Therefore, 2 extra types
  * are introduced for various situations: {@link PromResponseDto} represents only the "data.result" node of the
  * response intended for scenarios like transmitting the responses between microservices, whereas the
- * {@link PromQueryResult} is intended for direct use such as analyzing and returning them in a REST resource.<br>
+ * {@link PromResult} is intended for direct use such as analyzing and returning them in a REST resource.<br>
  * Both types can be directly mapped from {@link PromResponse} by their respective mapper.
  *
  * This test tests the mapping from {@link PromResponse} to {@link PromResponseDto}.
  *
  * @author Li Wan
  */
-public class PromResponseMapperTest {
+public class PromMapperTest {
   private static final TypeReference<PromResponse<PromResponse.VectorResult>> VECTOR_TYPE_REF =
       new TypeReference<PromResponse<PromResponse.VectorResult>>() {};
   private static final TypeReference<PromResponse<PromResponse.MatrixResult>> MATRIX_TYPE_REF =

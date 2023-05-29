@@ -34,8 +34,8 @@ import com.google.common.annotations.Beta;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
-import works.lifeops.observe.prom4j.builder.dto.PromQueryResult;
-import works.lifeops.observe.prom4j.builder.dto.PromQueryResultMapper;
+import works.lifeops.observe.prom4j.builder.dto.PromResult;
+import works.lifeops.observe.prom4j.builder.dto.PromResultMapper;
 
 @Beta
 @SuppressWarnings("unused")
@@ -46,13 +46,13 @@ public class PromQueryService {
   private final RestTemplate restTemplate;
   private final UriBuilderFactory uriBuilderFactory;
   private final ObjectMapper objectMapper;
-  private final PromQueryResultMapper resultMapper;
+  private final PromResultMapper resultMapper;
 
   public PromQueryService(@Qualifier("prom4jWebClient") final WebClient client,
                           @Qualifier("prom4jRestTemplate") final RestTemplate restTemplate,
                           @Qualifier("prom4jUriBuilderFactory") final UriBuilderFactory uriBuilderFactory,
                           @Qualifier("prom4jObjectMapper") final ObjectMapper objectMapper,
-                          @Qualifier("promQueryResultMapper") final PromQueryResultMapper resultMapper) {
+                          @Qualifier("promResultMapper") final PromResultMapper resultMapper) {
     this.client = client;
     this.restTemplate = restTemplate;
     this.uriBuilderFactory = uriBuilderFactory;
@@ -91,7 +91,7 @@ public class PromQueryService {
     log.info("Test query blocking \"{}\" got response = {}", query.orElse(TEST_QUERY), response.getBody().toString());
   }
 
-  public List<PromQueryResult.SampleResult> getSamples(PromQuery.InstantQuery instantQuery) {
+  public List<PromResult.SampleResult> getSamples(PromQuery.InstantQuery instantQuery) {
     PromResponse<PromResponse.VectorResult> response = this
         .<PromResponse.VectorResult>queryBlocking(instantQuery)
         .getBody();
@@ -99,7 +99,7 @@ public class PromQueryService {
     return resultMapper.vectorResponseToSampleResult(response);
   }
 
-  public List<PromQueryResult.TimeSeriesResult> getTimeSeries(PromQuery promQuery) {
+  public List<PromResult.TimeSeriesResult> getTimeSeries(PromQuery promQuery) {
     PromResponse<PromResponse.MatrixResult> response = this
         .<PromResponse.MatrixResult>queryBlocking(promQuery)
         .getBody();
@@ -107,5 +107,5 @@ public class PromQueryService {
     return resultMapper.matrixResponseToTimeSeriesResult(response);
   }
 
-  // public abstract <R> List<PromQueryResult<R>> getResult(PromQuery<R> promQuery);
+  // public abstract <R> List<PromResult<R>> getResult(PromQuery<R> promQuery);
 }
