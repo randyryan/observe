@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "data": [
+    "__name__",
+    "group",
+    "instance",
+    "job"
+  ]
+}

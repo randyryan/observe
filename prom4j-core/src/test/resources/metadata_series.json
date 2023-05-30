@@ -1,0 +1,16 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "__name__": "go_threads",
+      "group": "production",
+      "instance": "localhost:8080",
+      "job": "node"
+    },
+    {
+      "__name__": "go_threads",
+      "instance": "localhost:9090",
+      "job": "prometheus"
+    }
+  ]
+}

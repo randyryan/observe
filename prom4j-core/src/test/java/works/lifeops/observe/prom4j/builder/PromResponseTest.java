@@ -38,7 +38,7 @@ public class PromResponseTest {
   @BeforeEach
   public void setUp() {
     SimpleModule module = new SimpleModule();
-    module.addDeserializer(PromResponse.class, new PromResponseDserializer());
+    module.addDeserializer(PromResponse.class, new PromResponseDeserializer());
 
     objectMapper = JsonMapper.builder()
         .addModule(module)

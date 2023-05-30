@@ -27,12 +27,12 @@ import com.google.common.collect.Lists;
 
 @Beta
 @SuppressWarnings({"serial", "unchecked"})
-public class PromResponseDserializer extends StdDeserializer<PromResponse<PromResponse.Result>> {
-  protected PromResponseDserializer(Class<?> vc) {
+public class PromResponseDeserializer extends StdDeserializer<PromResponse<PromResponse.Result>> {
+  protected PromResponseDeserializer(Class<?> vc) {
     super(vc);
   }
 
-  public PromResponseDserializer() {
+  public PromResponseDeserializer() {
     this(null);
   }
 
@@ -66,7 +66,6 @@ public class PromResponseDserializer extends StdDeserializer<PromResponse<PromRe
         PromResponse.ResultValue<PromResponse.VectorResult> value = PromResponse.ResultValue.of(
             resultValueNode.get(0).asDouble(),
             resultValueNode.get(1).asText());
-
         response.getData().getResult().add(new PromResponse.VectorResult(metric, value));
       }
     }
@@ -78,7 +77,7 @@ public class PromResponseDserializer extends StdDeserializer<PromResponse<PromRe
         Map<String, String> metric = context.readTreeAsValue(resultMetricNode, Map.class);
         JsonNode resultValuesNode = resultNode.get("values");
         List<PromResponse.ResultValue<PromResponse.MatrixResult>> values = Lists.newArrayList();
-        for(Iterator<JsonNode> valueNodeIterator = resultValuesNode.elements(); valueNodeIterator.hasNext(); ) {
+        for (Iterator<JsonNode> valueNodeIterator = resultValuesNode.elements(); valueNodeIterator.hasNext(); ) {
           JsonNode valueNode = valueNodeIterator.next();
           PromResponse.ResultValue<PromResponse.MatrixResult> value = PromResponse.ResultValue.of(
               valueNode.get(0).asDouble(),

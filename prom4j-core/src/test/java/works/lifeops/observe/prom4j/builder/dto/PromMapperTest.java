@@ -29,7 +29,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import works.lifeops.observe.prom4j.builder.PromResponse;
-import works.lifeops.observe.prom4j.builder.PromResponseDserializer;
+import works.lifeops.observe.prom4j.builder.PromResponseDeserializer;
 
 /**
  * The {@link PromResponse} is a Java representation of JSON in the response body from the Prometheus query API,
@@ -57,7 +57,7 @@ public class PromMapperTest {
   @BeforeEach
   public void setUpClass() {
     SimpleModule module = new SimpleModule();
-    module.addDeserializer(PromResponse.class, new PromResponseDserializer());
+    module.addDeserializer(PromResponse.class, new PromResponseDeserializer());
 
     objectMapper = JsonMapper.builder()
         .addModule(module)
