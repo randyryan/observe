@@ -321,6 +321,19 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
     }
   }
 
+  public static class MetadataQueryBuilder extends RangedQueryBuilder<MetadataQueryBuilder, PromQuery.Metadata> {
+    List<String> matches = Lists.newArrayList();
+
+    private MetadataQueryBuilder(PromQuery.QueryType type) {
+      super(type);
+    }
+
+    @Override
+    public PromQuery.Metadata build() {
+      return null;
+    }
+  }
+
   public static class LabelBuilder {
     private String label;
     private String operator;

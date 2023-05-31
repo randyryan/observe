@@ -77,22 +77,35 @@ public abstract class PromQuery {
   private static final QueryBuilders QUERY_BUILDERS = new QueryBuilders();
 
   public static enum QueryType {
-    INSTANT("instant"), RANGE("range"), METADATA("metadata");
+    INSTANT("query", "query"),
+    RANGE("query_range", "query"),
+    SERIES("series", "match[]"),
+    LABELS("labels", "match[]"),
+    LABELS_VALUES("label/<label_name>/values", "match[]");
 
-    private final String type;
+    private final String endpoint;
+    private final String parameter;
 
-    private QueryType(String value) {
-      this.type = value;
-    }
-
-    @Override
-    public String toString() {
-      return type;
+    private QueryType(String endpoint, String parameter) {
+      this.endpoint = endpoint;
+      this.parameter = parameter;
     }
 
     boolean is(QueryType queryType) {
       return queryType == this;
     }
+
+    String endpoint() {
+      return endpoint;
+    }
+
+    String parameter() {
+      return parameter;
+    }
+  }
+
+  public static enum MetadataType {
+
   }
 
   /**
@@ -101,6 +114,10 @@ public abstract class PromQuery {
   public static abstract class RangedQuery<RQ extends RangedQuery<?>> extends PromQuery {
     private Optional<String> start;
     private Optional<String> end;
+
+    private RangedQuery(QueryType type) {
+      super(type);
+    }
 
     private RangedQuery(QueryType type, String metric) {
       super(type, metric);
@@ -193,12 +210,10 @@ public abstract class PromQuery {
   }
 
   public static class Metadata extends RangedQuery<Metadata> {
-    private Metadata(QueryType type, String metric) {
-      super(type, metric);
-    }
+    private List<String> matches;
 
-    private Metadata(QueryType type, String metric, String selector) {
-      super(type, metric, selector);
+    private Metadata(QueryType type) {
+      super(type);
     }
   }
 
