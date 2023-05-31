@@ -39,8 +39,8 @@ import lombok.experimental.Accessors;
 @SuppressWarnings("unchecked")
 public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ extends PromQuery> {
   final PromQuery.QueryType queryType;
-  private String metric;
-  private List<String> criteria;
+  String metric;
+  List<String> criteria;
 
   private PromQueryBuilder(PromQuery.QueryType queryType) {
     this.queryType = queryType;
@@ -204,7 +204,7 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
   }
 
   public static class InstantQueryBuilder extends PromQueryBuilder<InstantQueryBuilder, PromQuery.InstantQuery> {
-    private Optional<String> time = Optional.empty();
+    Optional<String> time = Optional.empty();
     /**
      * TODO: Use {@link java.time.Duration} and {@link java.time.Period} to handle the following:
      *
@@ -216,7 +216,7 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
      * w - weeks - assuming a week has always 7d
      * y - years - assuming a year has always 365d
      */
-    private Optional<String> duration = Optional.empty();
+    Optional<String> duration = Optional.empty();
 
     InstantQueryBuilder() {
       super(PromQuery.QueryType.INSTANT);
@@ -252,33 +252,51 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
     }
   }
 
-  public static class RangeQueryBuilder extends PromQueryBuilder<RangeQueryBuilder, PromQuery.RangeQuery> {
-    private Optional<String> start = Optional.empty();
-    private Optional<String> end = Optional.empty();
-    private Optional<Integer> step = Optional.empty();
+  /**
+   * The builder type for {@link PromQuery.RangedQuery}.
+   *
+   * This generics writing looks a bit scary, but it can be understood easily once we see:<br>
+   *     (1) This class is made to extend {@link PromQueryBuilder}<br>
+   *     (2) The type parameters are simply twice bounded version of the ones ({@code B} and {@code PQ}) from
+   *         {@link PromQueryBuilder}.
+   *
+   * @param <RB> twice bounded version of {@code B}
+   * @param <RPQ> twice bounded version of {@code PQ}
+   */
+  public static abstract class RangedQueryBuilder<RB extends RangedQueryBuilder<RB, RPQ>, RPQ extends PromQuery.RangedQuery<RPQ>> extends PromQueryBuilder<RB, RPQ> {
+    Optional<String> start = Optional.empty();
+    Optional<String> end = Optional.empty();
+
+    private RangedQueryBuilder(PromQuery.QueryType queryType) {
+      super(queryType);
+    }
+
+    public RB start(String rfc3339) {
+      this.start = Optional.ofNullable(rfc3339);
+      return (RB) this;
+    }
+
+    public RB start(Optional<String> rfc3339) {
+      this.start = rfc3339;
+      return (RB) this;
+    }
+
+    public RB end(String rfc3339) {
+      this.end = Optional.ofNullable(rfc3339);
+      return (RB) this;
+    }
+
+    public RB end(Optional<String> rfc3339) {
+      this.end = rfc3339;
+      return (RB) this;
+    }
+  }
+
+  public static class RangeQueryBuilder extends RangedQueryBuilder<RangeQueryBuilder, PromQuery.RangeQuery> {
+    Optional<Integer> step = Optional.empty();
 
     RangeQueryBuilder() {
       super(PromQuery.QueryType.RANGE);
-    }
-
-    public RangeQueryBuilder start(String rfc3339) {
-      this.start = Optional.ofNullable(rfc3339);
-      return this;
-    }
-
-    public RangeQueryBuilder start(Optional<String> rfc3339) {
-      this.start = rfc3339;
-      return this;
-    }
-
-    public RangeQueryBuilder end(String rfc3339) {
-      this.end = Optional.ofNullable(rfc3339);
-      return this;
-    }
-
-    public RangeQueryBuilder end(Optional<String> rfc3339) {
-      this.end = rfc3339;
-      return this;
     }
 
     public RangeQueryBuilder step(int step) {
