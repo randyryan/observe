@@ -25,6 +25,7 @@ import com.google.common.base.Strings;
  * @author Li Wan
  */
 @Beta
+@SuppressWarnings("unchecked")
 public abstract class PromQuery {
   /**
    * Creator methods of the concrete builders. Although we could just be like {@code PromQuery.instantBuilder()} but
@@ -75,50 +76,10 @@ public abstract class PromQuery {
 
   private static final QueryBuilders QUERY_BUILDERS = new QueryBuilders();
 
-  // PromQuery
-
-  final QueryType type;
-  private String metric;
-  private String selector;
-
-  private PromQuery(QueryType type, String metric) {
-    this.type = type;
-    this.metric = metric;
-  }
-
-  private PromQuery(QueryType type, String metric, String selector) {
-    this.type = type;
-    this.metric = metric;
-    this.selector = selector;
-  }
-
-  // Syntactic sugar
-
-  public boolean is(PromQuery.QueryType type) {
-    return this.type.is(type);
-  }
-
-  public InstantQuery asInstant() {
-    return (InstantQuery) this;
-  }
-
-  public RangeQuery asRange() {
-    return (RangeQuery) this;
-  }
-
-  // Object overrides
-
-  @Override
-  public String toString() {
-    return String.format("%s%s", Strings.nullToEmpty(metric), Strings.nullToEmpty(selector));
-  }
-
-  // Internal types
-
   public static enum QueryType {
-    INSTANT("instant"), RANGE("range");
+    INSTANT("instant"), RANGE("range"), METADATA("metadata");
 
-    private String type;
+    private final String type;
 
     private QueryType(String value) {
       this.type = value;
@@ -131,6 +92,40 @@ public abstract class PromQuery {
 
     boolean is(QueryType queryType) {
       return queryType == this;
+    }
+  }
+
+  /**
+   * Ranged query allows to specify a "start" (optional) and an "end" (optional).
+   */
+  public static abstract class RangedQuery<RQ extends RangedQuery<?>> extends PromQuery {
+    private Optional<String> start;
+    private Optional<String> end;
+
+    private RangedQuery(QueryType type, String metric) {
+      super(type, metric);
+    }
+
+    private RangedQuery(QueryType type, String metric, String selector) {
+      super(type, metric, selector);
+    }
+
+    RQ start(Optional<String> start) {
+      this.start = start;
+      return (RQ) this;
+    }
+
+    public Optional<String> start() {
+      return start;
+    }
+
+    RQ end(Optional<String> end) {
+      this.end = end;
+      return (RQ) this;
+    }
+
+    public Optional<String> end() {
+      return end;
     }
   }
 
@@ -164,12 +159,9 @@ public abstract class PromQuery {
       return duration;
     }
 
-    // Object overrides
-
-    @Override
-    public String toString() {
+    public String getQuery() {
       StringBuilder sb = new StringBuilder();
-      sb.append(super.toString());
+      sb.append(super.getQuery());
       duration.ifPresent(d -> {
         sb.append('[');
         sb.append(d);
@@ -179,9 +171,7 @@ public abstract class PromQuery {
     }
   }
 
-  public static final class RangeQuery extends PromQuery {
-    private Optional<String> start;
-    private Optional<String> end;
+  public static final class RangeQuery extends RangedQuery<RangeQuery> {
     private Optional<Integer> step;
 
     RangeQuery(String metric) {
@@ -192,24 +182,6 @@ public abstract class PromQuery {
       super(QueryType.RANGE, metric, selector);
     }
 
-    RangeQuery start(Optional<String> start) {
-      this.start = start;
-      return this;
-    }
-
-    public Optional<String> start() {
-      return start;
-    }
-
-    RangeQuery end(Optional<String> end) {
-      this.end = end;
-      return this;
-    }
-
-    public Optional<String> end() {
-      return end;
-    }
-
     RangeQuery step(Optional<Integer> step) {
       this.step = step;
       return this;
@@ -218,5 +190,57 @@ public abstract class PromQuery {
     public Optional<Integer> step() {
       return step;
     }
+  }
+
+  public static class Metadata extends RangedQuery<Metadata> {
+    private Metadata(QueryType type, String metric) {
+      super(type, metric);
+    }
+
+    private Metadata(QueryType type, String metric, String selector) {
+      super(type, metric, selector);
+    }
+  }
+
+  // PromQuery
+
+  final QueryType type;
+  private String metric;
+  private String selector;
+
+  private PromQuery(QueryType type) {
+    this.type = type;
+  }
+
+  private PromQuery(QueryType type, String metric) {
+    this.type = type;
+    this.metric = metric;
+  }
+
+  private PromQuery(QueryType type, String metric, String selector) {
+    this.type = type;
+    this.metric = metric;
+    this.selector = selector;
+  }
+
+  /**
+   * Gets the value of the "query" query parameter to send to the Prometheus' API.
+   */
+  public String getQuery() {
+    return String.format("%s%s", Strings.nullToEmpty(metric), Strings.nullToEmpty(selector));
+  }
+
+  // Syntactic sugar
+
+  public boolean is(PromQuery.QueryType type) {
+    return this.type.is(type);
+  }
+
+  public InstantQuery asInstant() {
+    return (InstantQuery) this;
+  }
+
+  public RangeQuery asRange() {
+    return (RangeQuery) this;
   }
 }

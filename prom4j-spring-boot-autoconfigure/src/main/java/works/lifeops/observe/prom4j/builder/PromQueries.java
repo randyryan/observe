@@ -84,7 +84,7 @@ public final class PromQueries {
    */
   public static MultiValueMap<String, String> toMultiValueMap(PromQuery promQuery) {
     MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
-    queryParams.add("query", promQuery.toString());
+    queryParams.add("query", promQuery.getQuery());
     if (promQuery.is(PromQuery.QueryType.INSTANT)) {
       // Because we removed the encoding behavior from the PromQueryUriBuilderFactory.PromQueryUriBuilder.build, we need
       // to encode the query parameter values ourselves.
