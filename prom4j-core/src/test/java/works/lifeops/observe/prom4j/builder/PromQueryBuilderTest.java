@@ -217,4 +217,30 @@ public class PromQueryBuilderTest {
     // start, end, and step are query parameters not the query expression
     Assertions.assertEquals("go_threads{job=~\"prometheus|eureka\"}", promQuery.toString(), "Range query expression is properly built.");
   }
+
+  @Test
+  @DisplayName("Metadata query type and match")
+  public void metadata() {
+    PromQuery seriesQuery = PromQuery.builder()
+        .series()
+        .match("go_threads")
+        .build();
+
+    Assertions.assertEquals(PromQuery.QueryType.SERIES, seriesQuery.asMetadata().type, "Query type is properly built.");
+    Assertions.assertTrue(seriesQuery.asMetadata().matches().contains("go_threads"));
+  }
+
+  @Test
+  @DisplayName("Metadata query multiple matches")
+  public void metadataMatches() {
+    PromQuery multipleMatches = PromQuery.builder()
+        .series()
+        .matches(
+            "go_threads",
+            "go_info"
+        )
+        .build();
+
+    Assertions.assertEquals(List.of("go_threads", "go_info"), multipleMatches.asMetadata().matches(), "Multiple matches is properly built.");
+  }
 }

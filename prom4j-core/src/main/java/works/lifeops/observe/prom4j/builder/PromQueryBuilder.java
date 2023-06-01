@@ -253,7 +253,7 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
   }
 
   /**
-   * The builder type for {@link PromQuery.RangedQuery}.
+   * The builder base type for builders for types based on {@link PromQuery.RangedQuery}.
    *
    * This generics writing looks a bit scary, but it can be understood easily once we see:<br>
    *     (1) This class is made to extend {@link PromQueryBuilder}<br>
@@ -321,16 +321,41 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
     }
   }
 
-  public static class MetadataQueryBuilder extends RangedQueryBuilder<MetadataQueryBuilder, PromQuery.Metadata> {
+  public static class MetadataQueryBuilder extends RangedQueryBuilder<MetadataQueryBuilder, PromQuery.MetadataQuery> {
     List<String> matches = Lists.newArrayList();
+    String labelName;
 
-    private MetadataQueryBuilder(PromQuery.QueryType type) {
+    MetadataQueryBuilder(PromQuery.QueryType type) {
       super(type);
     }
 
+    public MetadataQueryBuilder match(String match) {
+      matches.add(match);
+      return this;
+    }
+
+    public MetadataQueryBuilder matches(String... matches) {
+      for (String match : matches) {
+        this.matches.add(match);
+      }
+      return this;
+    }
+
+    /**
+     * Label values query only - The label name to present in the GET /api/v1/label/<label_name>/values.
+     */
+    public MetadataQueryBuilder labelName(String labelName) {
+      this.labelName = labelName;
+      return this;
+    }
+
     @Override
-    public PromQuery.Metadata build() {
-      return null;
+    public PromQuery.MetadataQuery build() {
+      return new PromQuery.MetadataQuery(queryType)
+          .matches(matches)
+          .labelName(labelName)
+          .start(start)
+          .end(end);
     }
   }
 

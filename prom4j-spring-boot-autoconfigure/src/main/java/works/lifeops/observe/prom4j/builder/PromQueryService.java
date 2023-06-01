@@ -80,6 +80,22 @@ public class PromQueryService {
       return restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
   }
 
+  public <M extends PromMetadata<?>> ResponseEntity<M> queryMetadata(PromQuery promQuery) {
+    URI uri = PromQueries.createUri(uriBuilderFactory.builder(), promQuery);
+    // Stupid ParameterizedTypeReference can't use inferred types: https://stackoverflow.com/a/41182994
+    return restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<M>() {});
+  }
+
+  public ResponseEntity<PromMetadata.Series> querySeriesMetadata(PromQuery promQuery) {
+    URI uri = PromQueries.createUri(uriBuilderFactory.builder(), promQuery);
+    return restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<PromMetadata.Series>() {});
+  }
+
+  public ResponseEntity<PromMetadata.Labels> queryLabelsMetadata(PromQuery promQuery) {
+    URI uri = PromQueries.createUri(uriBuilderFactory.builder(), promQuery);
+    return restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<PromMetadata.Labels>() {});
+  }
+
   public void test(Optional<PromQuery> query) {
     query(query.orElse(TEST_QUERY)).subscribe(response ->
         log.info("Test query \"{}\" got response = {}", query.orElse(TEST_QUERY), response.toString()));

@@ -42,6 +42,18 @@ public abstract class PromQuery {
       return new PromQueryBuilder.RangeQueryBuilder();
     }
 
+    public PromQueryBuilder.MetadataQueryBuilder series() {
+      return new PromQueryBuilder.MetadataQueryBuilder(QueryType.SERIES);
+    }
+
+    public PromQueryBuilder.MetadataQueryBuilder labels() {
+      return new PromQueryBuilder.MetadataQueryBuilder(QueryType.LABELS);
+    }
+
+    public PromQueryBuilder.MetadataQueryBuilder labelValues() {
+      return new PromQueryBuilder.MetadataQueryBuilder(QueryType.LABELS_VALUES);
+    }
+
     public PromQueryBuilder.LabelBuilder label(String label) {
       return new PromQueryBuilder.LabelBuilder(label);
     }
@@ -77,11 +89,11 @@ public abstract class PromQuery {
   private static final QueryBuilders QUERY_BUILDERS = new QueryBuilders();
 
   public static enum QueryType {
-    INSTANT("query", "query"),
-    RANGE("query_range", "query"),
-    SERIES("series", "match[]"),
-    LABELS("labels", "match[]"),
-    LABELS_VALUES("label/<label_name>/values", "match[]");
+    INSTANT("/query", "query"),
+    RANGE("/query_range", "query"),
+    SERIES("/series", "match[]"),
+    LABELS("/labels", "match[]"),
+    LABELS_VALUES("/label/<label_name>/values", "match[]");
 
     private final String endpoint;
     private final String parameter;
@@ -209,11 +221,30 @@ public abstract class PromQuery {
     }
   }
 
-  public static class Metadata extends RangedQuery<Metadata> {
+  public static class MetadataQuery extends RangedQuery<MetadataQuery> {
     private List<String> matches;
+    private String labelName;
 
-    private Metadata(QueryType type) {
+    MetadataQuery(QueryType type) {
       super(type);
+    }
+
+    MetadataQuery matches(List<String> matches) {
+      this.matches = matches;
+      return this;
+    }
+
+    public List<String> matches() {
+      return matches;
+    }
+
+    MetadataQuery labelName(String labelName) {
+      this.labelName = labelName;
+      return this;
+    }
+
+    public String labelName() {
+      return labelName;
     }
   }
 
@@ -257,5 +288,9 @@ public abstract class PromQuery {
 
   public RangeQuery asRange() {
     return (RangeQuery) this;
+  }
+
+  public MetadataQuery asMetadata() {
+    return (MetadataQuery) this;
   }
 }

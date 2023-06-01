@@ -69,7 +69,7 @@ public final class PromQueries {
     MultiValueMap<String, String> result = new LinkedMultiValueMap<>(queryParams.size());
     for (Map.Entry<String, List<String>> entry : queryParams.entrySet()) {
       for (String value : entry.getValue()) {
-        result.add(entry.getKey(), PROM_QUERY_ESCAPER.escape(value));
+        result.add(PROM_QUERY_ESCAPER.escape(entry.getKey()), PROM_QUERY_ESCAPER.escape(value));
       }
     }
     return result;
@@ -84,20 +84,23 @@ public final class PromQueries {
    */
   public static MultiValueMap<String, String> toMultiValueMap(PromQuery promQuery) {
     MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
-    queryParams.add("query", promQuery.getQuery());
     if (promQuery.is(PromQuery.QueryType.INSTANT)) {
-      // Because we removed the encoding behavior from the PromQueryUriBuilderFactory.PromQueryUriBuilder.build, we need
-      // to encode the query parameter values ourselves.
+      queryParams.add(promQuery.type.parameter(), promQuery.getQuery());
       promQuery.asInstant().time()
           .ifPresent(time -> queryParams.add("time", time));
     }
     if (promQuery.is(PromQuery.QueryType.RANGE)) {
+      queryParams.add(promQuery.type.parameter(), promQuery.getQuery());
       promQuery.asRange().start()
           .ifPresent(start -> queryParams.add("start", start));
       promQuery.asRange().end()
           .ifPresent(end -> queryParams.add("end", end));
       promQuery.asRange().step()
           .ifPresent(step -> queryParams.add("step", step.toString()));
+    }
+    if (promQuery.is(PromQuery.QueryType.SERIES) || promQuery.is(PromQuery.QueryType.LABELS) ||
+        promQuery.is(PromQuery.QueryType.LABELS_VALUES)) {
+      queryParams.addAll(promQuery.type.parameter(), promQuery.asMetadata().matches());
     }
     // TODO: Support the "timeout" parameter for both Instant and Range queries
 
@@ -111,16 +114,10 @@ public final class PromQueries {
     return toMultiValueMap(promQuery);
   }
 
-//  public static URI createUri(PromQuery promQuery) {
-//    return createUri(Prom4jSpringHelper.getProm4jUriBuilder(), promQuery);
-//  }
-
   public static URI createUri(UriBuilder uriBuilder, PromQuery promQuery) {
-    final String path = promQuery.is(PromQuery.QueryType.INSTANT) ?
-        "/query" :
-        promQuery.is(PromQuery.QueryType.RANGE) ?
-            "/query_range" :
-            "";
+    final String path = promQuery.is(PromQuery.QueryType.LABELS_VALUES) ?
+        promQuery.type.endpoint().replace("<label_name>", promQuery.asMetadata().labelName()) :
+        promQuery.type.endpoint();
     Preconditions.checkArgument(!Strings.isNullOrEmpty(path),
         "PromQuery of type: \"" + promQuery.type + "\" is not supported.");
 
@@ -131,18 +128,7 @@ public final class PromQueries {
   }
 
   public static Function<UriBuilder, URI> createUriFunc(PromQuery promQuery) {
-    final String path = promQuery.is(PromQuery.QueryType.INSTANT) ?
-        "/query" :
-        promQuery.is(PromQuery.QueryType.RANGE) ?
-            "/query_range" :
-            "";
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(path),
-        "PromQuery of type: \"" + promQuery.type + "\" is not supported.");
-
-    return uriBuilder -> uriBuilder
-        .path(path)
-        .queryParams(toQueryParams(promQuery))
-        .build();
+    return uriBuilder -> createUri(uriBuilder, promQuery);
   }
 
 }
