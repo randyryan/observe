@@ -321,6 +321,40 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
     }
   }
 
+  /**
+   * A bad design, this builder completely duplicates the object type it is building: {@link PromQuery.AggregatedQuery}.
+   */
+  @Deprecated
+  public static class AggregatedQueryBuilder extends RangedQueryBuilder<AggregatedQueryBuilder, PromQuery.AggregatedQuery> {
+    private final PromQuery internal;
+    private final String operator;
+    Optional<Integer> step = Optional.empty();
+
+    AggregatedQueryBuilder(InstantQueryBuilder queryBuilder, String operator) {
+      super(PromQuery.QueryType.RANGE);
+      this.internal = queryBuilder.build();
+      this.operator = operator;
+    }
+
+    public AggregatedQueryBuilder step(int step) {
+      this.step = Optional.of(step);
+      return this;
+    }
+
+    public AggregatedQueryBuilder step(Optional<Integer> step) {
+      this.step = step;
+      return this;
+    }
+
+    @Override
+    public PromQuery.AggregatedQuery build() {
+      return new PromQuery.AggregatedQuery(internal, operator)
+          .start(start)
+          .end(end)
+          .step(step);
+    }
+  }
+
   public static class MetadataQueryBuilder extends RangedQueryBuilder<MetadataQueryBuilder, PromQuery.MetadataQuery> {
     List<String> matches = Lists.newArrayList();
     String labelName;

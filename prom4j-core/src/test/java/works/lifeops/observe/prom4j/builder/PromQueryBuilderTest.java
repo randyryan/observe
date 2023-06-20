@@ -243,4 +243,18 @@ public class PromQueryBuilderTest {
 
     Assertions.assertEquals(List.of("go_threads", "go_info"), multipleMatches.asMetadata().matches(), "Multiple matches is properly built.");
   }
+
+  @Test
+  @DisplayName("Aggregate")
+  public void aggregate() {
+    PromQuery aggregatedQuery = PromQuery
+        .max(
+            PromQuery.builder()
+                .instant()
+                .metric("go_threads")
+        )
+        .build();
+
+    Assertions.assertEquals("max(go_threads)", aggregatedQuery.getQuery(), "Aggregation operator is properly applied.");
+  }
 }

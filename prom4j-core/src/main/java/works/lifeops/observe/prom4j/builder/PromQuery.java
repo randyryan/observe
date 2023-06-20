@@ -86,6 +86,11 @@ public abstract class PromQuery {
     return QUERY_BUILDERS.values(values);
   }
 
+  @Deprecated
+  public static PromQueryBuilder.AggregatedQueryBuilder max(PromQueryBuilder.InstantQueryBuilder queryBuilder) {
+    return new PromQueryBuilder.AggregatedQueryBuilder(queryBuilder, "max");
+  }
+
   private static final QueryBuilders QUERY_BUILDERS = new QueryBuilders();
 
   public static enum QueryType {
@@ -221,6 +226,41 @@ public abstract class PromQuery {
     }
   }
 
+  /**
+   * https://prometheus.io/docs/prometheus/latest/querying/operators/#aggregation-operators
+   *
+   * TODO: A very simple implementation for the aggregation operators that does not support by, without, and parameters.
+   */
+  @Deprecated
+  public static class AggregatedQuery extends RangedQuery<AggregatedQuery> {
+
+    private final PromQuery internal;
+    private final String operator;
+    private Optional<Integer> step;
+
+    AggregatedQuery(PromQuery internal, String operator) {
+      // Hard-coded as range query for now. It is a valid vector, something that we need to support.
+      super(QueryType.RANGE, internal.metric, internal.selector);
+      this.internal = internal;
+      this.operator = operator;
+    }
+
+    AggregatedQuery step(Optional<Integer> step) {
+      this.step = step;
+      return this;
+    }
+
+    public Optional<Integer> step() {
+      return step;
+    }
+
+    @Override
+    public String getQuery() {
+      return String.format("%s(%s)", operator, internal.getQuery());
+    }
+
+  }
+
   public static class MetadataQuery extends RangedQuery<MetadataQuery> {
     private List<String> matches;
     private String labelName;
@@ -250,6 +290,10 @@ public abstract class PromQuery {
 
   // PromQuery
 
+  /**
+   * The type is used by PromQueries for selecting the appropriate Prometheus API and supply the appropriate query
+   * parameters.
+   */
   final QueryType type;
   private String metric;
   private String selector;

@@ -91,12 +91,22 @@ public final class PromQueries {
     }
     if (promQuery.is(PromQuery.QueryType.RANGE)) {
       queryParams.add(promQuery.type.parameter(), promQuery.getQuery());
-      promQuery.asRange().start()
-          .ifPresent(start -> queryParams.add("start", start));
-      promQuery.asRange().end()
-          .ifPresent(end -> queryParams.add("end", end));
-      promQuery.asRange().step()
-          .ifPresent(step -> queryParams.add("step", step.toString()));
+      // The instanceof is added solely for AggregatedQuery, remove it after we come to an ideal version of Aggregated
+      // queries
+      if (promQuery instanceof PromQuery.RangeQuery) {
+        promQuery.asRange().start()
+            .ifPresent(start -> queryParams.add("start", start));
+        promQuery.asRange().end()
+            .ifPresent(end -> queryParams.add("end", end));
+        promQuery.asRange().step()
+            .ifPresent(step -> queryParams.add("step", step.toString()));
+      }
+      if (promQuery instanceof PromQuery.AggregatedQuery) {
+        PromQuery.AggregatedQuery aggregatedQuery = (PromQuery.AggregatedQuery) promQuery;
+        aggregatedQuery.start().ifPresent(start -> queryParams.add("start", start));
+        aggregatedQuery.end().ifPresent(end -> queryParams.add("end", end));
+        aggregatedQuery.step().ifPresent(step -> queryParams.add("step", step.toString()));
+      }
     }
     if (promQuery.is(PromQuery.QueryType.SERIES) || promQuery.is(PromQuery.QueryType.LABELS) ||
         promQuery.is(PromQuery.QueryType.LABELS_VALUES)) {
