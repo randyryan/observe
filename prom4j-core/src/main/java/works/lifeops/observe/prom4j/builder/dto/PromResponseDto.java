@@ -35,6 +35,20 @@ public abstract class PromResponseDto {
   @lombok.EqualsAndHashCode(callSuper = false)
   public static final class VectorResultDto extends PromResponseDto {
     private PromResponse.ResultValue<PromResponse.VectorResult> value;
+
+    public MatrixResultDto toMatrixResultDto() {
+      PromResponse.ResultValue<PromResponse.MatrixResult> value = PromResponse.ResultValue.of(
+              VectorResultDto.this.value.getEpochDateTime(),
+              VectorResultDto.this.value.getValue()
+      );
+
+      MatrixResultDto matrixResultDto = new MatrixResultDto();
+      matrixResultDto.setName(getName());
+      matrixResultDto.setLabels(getLabels());
+      matrixResultDto.setValues(List.of(value));
+
+      return matrixResultDto;
+    }
   }
 
   @lombok.Data
