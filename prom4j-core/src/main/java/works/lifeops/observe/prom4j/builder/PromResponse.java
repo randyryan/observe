@@ -191,6 +191,12 @@ public class PromResponse<R extends PromResponse.Result> {
       // at each Values' creation at deserialization to avoid setting the Result here. This way the Result concrete
       // classes can back to annotated by @AllArgsConstructor
     }
+
+    public MatrixResult toMatrixResult() {
+      ResultValue<MatrixResult> value =
+              ResultValue.of(VectorResult.this.value.epochDateTime, VectorResult.this.value.value);
+      return new MatrixResult(metric, List.of(value));
+    }
   }
 
   @lombok.Data
