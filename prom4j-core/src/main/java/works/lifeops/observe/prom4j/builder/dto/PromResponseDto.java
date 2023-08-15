@@ -47,8 +47,17 @@ public abstract class PromResponseDto {
       matrixResultDto.setLabels(getLabels());
       matrixResultDto.setValues(List.of(value));
 
+      value.setResult(VectorResultDto.this.value.getResult().toMatrixResult());
+
       return matrixResultDto;
     }
+  }
+
+  @lombok.Data
+  @lombok.EqualsAndHashCode(callSuper = false)
+  public static final class VectrixResultDto extends PromResponseDto {
+    private PromResponse.ResultValue<PromResponse.VectrixResult> value;
+    private List<PromResponse.ResultValue<PromResponse.VectrixResult>> values;
   }
 
   @lombok.Data

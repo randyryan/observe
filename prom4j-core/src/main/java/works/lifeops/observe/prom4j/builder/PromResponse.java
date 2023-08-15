@@ -18,6 +18,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
@@ -196,6 +197,52 @@ public class PromResponse<R extends PromResponse.Result> {
       ResultValue<MatrixResult> value =
               ResultValue.of(VectorResult.this.value.epochDateTime, VectorResult.this.value.value);
       return new MatrixResult(metric, List.of(value));
+    }
+  }
+
+  /**
+   * A type of {@link PromResponse.Result} can be used for both {@link ResultType#VECTOR} and {@link ResultType#MATRIX}
+   *
+   * Note: This type will be used to gradually phase out {@link VectorResult} and {@link MatrixResult}.
+   *
+   */
+  @lombok.Data
+  @lombok.ToString
+  @lombok.EqualsAndHashCode(callSuper = false)
+  public static class VectrixResult extends Result {
+    private Map<String, String> metric;
+    private ResultValue<VectrixResult> value;
+    private List<ResultValue<VectrixResult>> values;
+
+    VectrixResult(Map<String, String> metric, ResultValue<VectrixResult> value) {
+      this.metric = metric;
+      this.value = value.setResult(this);
+      this.values = List.of(value);
+    }
+
+    VectrixResult(Map<String, String> metric, List<ResultValue<VectrixResult>> values) {
+      this.metric = metric;
+      this.values = values;
+      this.values.forEach(value -> value.setResult(this));
+    }
+
+    public VectorResult toVectorResult() {
+      ResultValue<VectorResult> value =
+              ResultValue.of(VectrixResult.this.value.epochDateTime, VectrixResult.this.value.value);
+      return new VectorResult(metric, value);
+    }
+
+    public MatrixResult toMatrixResult() {
+      if (values.size() == 1) {
+        ResultValue<MatrixResult> value =
+                ResultValue.of(VectrixResult.this.value.epochDateTime, VectrixResult.this.value.value);
+        return new MatrixResult(metric, List.of(value));
+      } else {
+        List<ResultValue<MatrixResult>> matrixValues = values.stream()
+                .map(vectrixValue -> ResultValue.<MatrixResult>of(vectrixValue.epochDateTime, vectrixValue.value))
+                .collect(Collectors.toList());
+        return new MatrixResult(metric, matrixValues);
+      }
     }
   }
 
