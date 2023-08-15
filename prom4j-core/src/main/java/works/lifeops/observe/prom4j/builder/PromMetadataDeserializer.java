@@ -28,6 +28,7 @@ import com.google.common.collect.Lists;
 
 @SuppressWarnings("unchecked")
 public class PromMetadataDeserializer<PM extends PromMetadata<?>> extends StdDeserializer<PromMetadata<?>> {
+  private static final long serialVersionUID = 1L;
   private final Class<? extends PromMetadata<?>> vc;
 
   public PromMetadataDeserializer(Class<PM> vc) {

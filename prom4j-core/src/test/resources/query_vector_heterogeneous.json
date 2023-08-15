@@ -1,0 +1,30 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {
+          "__name__": "go_memstats_heap_alloc_bytes",
+          "instance": "localhost:9090",
+          "job": "prometheus"
+        },
+        "value": [
+          1687866810.052,
+          "25254152"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "go_memstats_heap_idle_bytes",
+          "instance": "localhost:9090",
+          "job": "prometheus"
+        },
+        "value": [
+          1687866810.052,
+          "52994048"
+        ]
+      }
+    ]
+  }
+}

@@ -53,6 +53,8 @@ public class PromMapperTest {
 
   private InputStream queryVector;
   private InputStream queryMatrix;
+  private InputStream heterogeneousVector;
+  private InputStream heterogeneousMatrix;
 
   @BeforeEach
   public void setUpClass() {
@@ -65,6 +67,8 @@ public class PromMapperTest {
 
     queryVector = Thread.currentThread().getContextClassLoader().getResourceAsStream("query_vector.json");
     queryMatrix = Thread.currentThread().getContextClassLoader().getResourceAsStream("query_matrix.json");
+    heterogeneousVector = Thread.currentThread().getContextClassLoader().getResourceAsStream("query_vector_heterogeneous.json");
+    heterogeneousMatrix = Thread.currentThread().getContextClassLoader().getResourceAsStream("query_matrix_heterogeneous.json");
   }
 
   @Test
@@ -131,6 +135,24 @@ public class PromMapperTest {
       PromResponse.ResultValue<PromResponse.MatrixResult> responseValue = response.getData().getResult().get(0).getValues().get(i);
       PromResponse.ResultValue<PromResponse.MatrixResult> dtoValue = matrixResult.getValues().get(i);
       Assertions.assertEquals(responseValue, dtoValue, "ResultValues are equal");
+    }
+  }
+
+  @Test
+  public void heterogeneousVector() throws IOException {
+    PromResponse<PromResponse.VectorResult> response = objectMapper.readValue(heterogeneousVector, VECTOR_TYPE_REF);
+
+    for(PromResponseDto.VectorResultDto result : PromResponseMapper.INSTANCE.vectorResponseToDto(response)) {
+      System.out.println(result.getName());
+    }
+  }
+
+  @Test
+  public void heterogeneousMatrix() throws IOException {
+    PromResponse<PromResponse.MatrixResult> response = objectMapper.readValue(heterogeneousMatrix, MATRIX_TYPE_REF);
+
+    for (PromResponseDto.MatrixResultDto result : PromResponseMapper.INSTANCE.matrixResponseToDto(response)) {
+      System.out.println(result.getName());
     }
   }
 

@@ -173,6 +173,18 @@ public class PromQueryBuilderTest {
   }
 
   @Test
+  @DisplayName("Selecting several metrics, inspired by https://stackoverflow.com/a/47415934 and https://www.robustperception.io/whats-in-a-__name__/")
+  public void multipleLabels2() {
+    PromQuery query = PromQuery.builder()
+        .instant()
+        .label("__name__").in(List.of("go_memstats_heap_alloc_bytes", "go_memstats_heap_idle_bytes"))
+        .label("job").is("prometheus")
+        .build();
+
+    Assertions.assertEquals("{__name__=~\"go_memstats_heap_alloc_bytes|go_memstats_heap_idle_bytes\",job=\"prometheus\"}", query.getQuery(), "Selecting multiple metrics.");
+  }
+
+  @Test
   public void multipleLabelValuesOr() {
     PromQuery query = PromQuery.builder()
         .instant()
