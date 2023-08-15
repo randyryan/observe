@@ -84,6 +84,10 @@ public class PromResponse<R extends PromResponse.Result> {
     public Data() {
       result = Lists.newArrayList();
     }
+
+    public boolean addResult(R result) {
+      return this.result.add(result);
+    }
   }
 
   /**

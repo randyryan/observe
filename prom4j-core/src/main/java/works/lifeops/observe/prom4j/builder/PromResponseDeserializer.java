@@ -17,6 +17,10 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -57,38 +61,75 @@ public class PromResponseDeserializer extends StdDeserializer<PromResponse<PromR
 
     // response.data.result (list)
     if (resultType.is(PromResponse.ResultType.VECTOR)) {
-      for (Iterator<JsonNode> resultNodeIterator = resultsNode.elements(); resultNodeIterator.hasNext(); ) {
-        JsonNode resultNode = resultNodeIterator.next();
-
-        JsonNode resultMetricNode = resultNode.get("metric");
-        Map<String, String> metric = context.readTreeAsValue(resultMetricNode, Map.class);
-        JsonNode resultValueNode = resultNode.get("value");
-        PromResponse.ResultValue<PromResponse.VectorResult> value = PromResponse.ResultValue.of(
-            resultValueNode.get(0).asDouble(),
-            resultValueNode.get(1).asText());
-        response.getData().getResult().add(new PromResponse.VectorResult(metric, value));
-      }
+      StreamSupport.stream(resultsNode.spliterator(), false)
+          .map(suppressIOException(resultNode -> {
+            Map<String, String> metric = context.readTreeAsValue(resultNode.get("metric"), Map.class);
+            PromResponse.ResultValue<PromResponse.VectrixResult> value = getValueFromNode(resultNode.get("value"));
+            return new PromResponse.VectrixResult(metric, value);
+          }))
+          .forEach(result -> response.getData().addResult(result));
     }
     if (resultType.is(PromResponse.ResultType.MATRIX)) {
-      for (Iterator<JsonNode> resultNodeIterator = resultsNode.elements(); resultNodeIterator.hasNext(); ) {
-        JsonNode resultNode = resultNodeIterator.next();
-
-        JsonNode resultMetricNode = resultNode.get("metric");
-        Map<String, String> metric = context.readTreeAsValue(resultMetricNode, Map.class);
-        JsonNode resultValuesNode = resultNode.get("values");
-        List<PromResponse.ResultValue<PromResponse.MatrixResult>> values = Lists.newArrayList();
-        for (Iterator<JsonNode> valueNodeIterator = resultValuesNode.elements(); valueNodeIterator.hasNext(); ) {
-          JsonNode valueNode = valueNodeIterator.next();
-          PromResponse.ResultValue<PromResponse.MatrixResult> value = PromResponse.ResultValue.of(
-              valueNode.get(0).asDouble(),
-              valueNode.get(1).asText());
-          values.add(value);
-        }
-
-        response.getData().getResult().add(new PromResponse.MatrixResult(metric, values));
-      }
+      StreamSupport.stream(resultsNode.spliterator(), false)
+          .map(suppressIOException(resultNode -> {
+            Map<String, String> metric = context.readTreeAsValue(resultNode.get("metric"), Map.class);
+            JsonNode valuesNode = resultNode.get("values");
+            List<PromResponse.ResultValue<PromResponse.VectrixResult>> values = StreamSupport.stream(valuesNode.spliterator(), false)
+                .map(this::<PromResponse.VectrixResult>getValueFromNode)
+                .collect(Collectors.toList());
+            return new PromResponse.VectrixResult(metric, values);
+          }))
+          .forEach(result -> response.getData().addResult(result));
     }
 
     return response;
+  }
+
+  /**
+   * A modified {@link java.util.function.Consumer} that adds a throws declaration on the {@code accept()} method. Use
+   * for receiving a {@link java.util.function.Consumer} written in lambda in the
+   * {@link PromResponseDeserializer#consumeIOException(IOExceptionConsumer)}.
+   */
+  private interface IOExceptionConsumer<T, IOE extends IOException> {
+    void accept(T t) throws IOE;
+  }
+
+  /**
+   * A modified {@link java.util.function.Function} that adds a throws declaration on the {@code apply(T)} method.
+   */
+  private interface IOExceptionSuppressor<T, R, IOE extends IOException>  {
+    R apply(T t) throws IOE;
+  }
+
+  /**
+   * A method for converting a consumer that throws an exception to one that doesn't for
+   * {@link java.util.stream.Stream#forEach(Consumer)} to use.
+   */
+  private static <T> Consumer<T> consumeIOException(IOExceptionConsumer<T, IOException> ioExceptionConsumer) {
+    return t -> {
+      try {
+        ioExceptionConsumer.accept(t);
+      } catch (IOException ioe) {
+        throw new RuntimeException(ioe);
+      }
+    };
+  }
+
+  /**
+   * A method for converting a function that throws an exception to one that doesn't for
+   * {@link java.util.stream.Stream#map(Function)} to use.
+   */
+  private static <T, R> Function<T, R> suppressIOException(IOExceptionSuppressor<T, R, IOException> ioExceptionSuppressor) {
+    return t -> {
+      try {
+        return ioExceptionSuppressor.apply(t);
+      } catch (IOException ioe) {
+        throw new RuntimeException(ioe);
+      }
+    };
+  }
+
+  private <R extends PromResponse.Result> PromResponse.ResultValue<R> getValueFromNode(JsonNode valueNode) {
+    return PromResponse.ResultValue.of(valueNode.get(0).asDouble(), valueNode.get(1).asText());
   }
 }
