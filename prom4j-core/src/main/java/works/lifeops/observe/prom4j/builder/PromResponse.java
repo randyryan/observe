@@ -150,6 +150,10 @@ public class PromResponse<R extends PromResponse.Result> {
       return new ResultValue<R>(epochDateTime, value);
     }
 
+    public static <R extends Result> ResultValue<R> copy(ResultValue<?> resultValue) {
+      return new ResultValue<R>(resultValue.getEpochDateTime(), resultValue.getValue());
+    }
+
     private R result;
     private double epochDateTime;
     private String value;

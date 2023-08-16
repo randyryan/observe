@@ -15,6 +15,7 @@ package works.lifeops.observe.prom4j.builder.dto;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import works.lifeops.observe.prom4j.builder.PromResponse;
 
@@ -35,22 +36,6 @@ public abstract class PromResponseDto {
   @lombok.EqualsAndHashCode(callSuper = false)
   public static final class VectorResultDto extends PromResponseDto {
     private PromResponse.ResultValue<PromResponse.VectorResult> value;
-
-    public MatrixResultDto toMatrixResultDto() {
-      PromResponse.ResultValue<PromResponse.MatrixResult> value = PromResponse.ResultValue.of(
-              VectorResultDto.this.value.getEpochDateTime(),
-              VectorResultDto.this.value.getValue()
-      );
-
-      MatrixResultDto matrixResultDto = new MatrixResultDto();
-      matrixResultDto.setName(getName());
-      matrixResultDto.setLabels(getLabels());
-      matrixResultDto.setValues(List.of(value));
-
-      value.setResult(VectorResultDto.this.value.getResult().toMatrixResult());
-
-      return matrixResultDto;
-    }
   }
 
   @lombok.Data
@@ -58,6 +43,10 @@ public abstract class PromResponseDto {
   public static final class VectrixResultDto extends PromResponseDto {
     private PromResponse.ResultValue<PromResponse.VectrixResult> value;
     private List<PromResponse.ResultValue<PromResponse.VectrixResult>> values;
+
+    public List<PromResponse.ResultValue<PromResponse.VectrixResult>> getValues() {
+      return Objects.requireNonNullElseGet(values, () -> List.of(value));
+    }
   }
 
   @lombok.Data
