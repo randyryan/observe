@@ -14,7 +14,6 @@
 package works.lifeops.observe.prom4j.builder;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -27,7 +26,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.annotations.Beta;
-import com.google.common.collect.Lists;
 
 @Beta
 @SuppressWarnings({"serial", "unchecked"})
