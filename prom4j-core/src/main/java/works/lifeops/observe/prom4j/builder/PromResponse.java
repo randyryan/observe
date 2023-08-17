@@ -151,7 +151,7 @@ public class PromResponse<R extends PromResponse.Result> {
     }
 
     public static <R extends Result> ResultValue<R> copy(ResultValue<?> resultValue) {
-      return new ResultValue<R>(resultValue.getEpochDateTime(), resultValue.getValue());
+      return new ResultValue<R>(resultValue.epochDateTime, resultValue.value);
     }
 
     private R result;
@@ -202,9 +202,22 @@ public class PromResponse<R extends PromResponse.Result> {
     }
 
     public MatrixResult toMatrixResult() {
-      ResultValue<MatrixResult> value =
-              ResultValue.of(VectorResult.this.value.epochDateTime, VectorResult.this.value.value);
-      return new MatrixResult(metric, List.of(value));
+      return new MatrixResult(metric, List.of(ResultValue.copy(VectorResult.this.value)));
+    }
+  }
+
+  @lombok.Data
+  @lombok.ToString
+  @lombok.EqualsAndHashCode(callSuper = false)
+  public static class MatrixResult extends Result {
+    private Map<String, String> metric; // XXX: The same one as the super, just to get the AllArgsConstructor work
+    private List<ResultValue<MatrixResult>> values;
+
+    MatrixResult(Map<String, String> metric, List<ResultValue<MatrixResult>> values) {
+      this.metric = metric;
+      this.values = values;
+      this.values.forEach(value -> value.setResult(this)); // The same as the VectorResult but with more reason
+      // since this even need to set each value individually.
     }
   }
 
@@ -235,37 +248,18 @@ public class PromResponse<R extends PromResponse.Result> {
     }
 
     public VectorResult toVectorResult() {
-      ResultValue<VectorResult> value =
-              ResultValue.of(VectrixResult.this.value.epochDateTime, VectrixResult.this.value.value);
-      return new VectorResult(metric, value);
+      return new VectorResult(metric, ResultValue.copy(VectrixResult.this.value));
     }
 
     public MatrixResult toMatrixResult() {
       if (values.size() == 1) {
-        ResultValue<MatrixResult> value =
-                ResultValue.of(VectrixResult.this.value.epochDateTime, VectrixResult.this.value.value);
-        return new MatrixResult(metric, List.of(value));
+        return new MatrixResult(metric, List.of(ResultValue.copy(VectrixResult.this.value)));
       } else {
         List<ResultValue<MatrixResult>> matrixValues = values.stream()
-                .map(vectrixValue -> ResultValue.<MatrixResult>of(vectrixValue.epochDateTime, vectrixValue.value))
-                .collect(Collectors.toList());
+            .map(ResultValue::<MatrixResult>copy)
+            .collect(Collectors.toList());
         return new MatrixResult(metric, matrixValues);
       }
-    }
-  }
-
-  @lombok.Data
-  @lombok.ToString
-  @lombok.EqualsAndHashCode(callSuper = false)
-  public static class MatrixResult extends Result {
-    private Map<String, String> metric; // XXX: The same one as the super, just to get the AllArgsConstructor work
-    private List<ResultValue<MatrixResult>> values;
-
-    MatrixResult(Map<String, String> metric, List<ResultValue<MatrixResult>> values) {
-      this.metric = metric;
-      this.values = values;
-      this.values.forEach(value -> value.setResult(this)); // The same as the VectorResult but with more reason
-      // since this even need to set each value individually.
     }
   }
 

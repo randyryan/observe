@@ -36,6 +36,16 @@ public interface PromResponseMapper {
         .collect(Collectors.toList());
   }
 
+  @Mapping(expression = "java(arg0.getMetric().get(\"__name__\"))", target="name")
+  @Mapping(source = "metric", target = "labels")
+  PromResponseDto.MatrixResultDto matrixResultToDto(PromResponse.MatrixResult arg0);
+
+  default List<PromResponseDto.MatrixResultDto> matrixResponseToDto(PromResponse<PromResponse.MatrixResult> response) {
+    return response.getData().getResult().stream()
+        .map(this::matrixResultToDto)
+        .collect(Collectors.toList());
+  }
+
   // Vectrix
 
   @Mapping(expression = "java(arg0.getMetric().get(\"__name__\"))", target="name")
@@ -49,12 +59,6 @@ public interface PromResponseMapper {
         .collect(Collectors.toList());
   }
 
-  default List<PromResponseDto.VectrixResultDto> vectrixResponseToDto(PromResponse<PromResponse.VectrixResult> response) {
-    return response.getData().getResult().stream()
-        .map(this::vectrixResultToDto)
-        .collect(Collectors.toList());
-  }
-
   default List<PromResponseDto.MatrixResultDto> vectrixResponseToMatrixDto(PromResponse<PromResponse.VectrixResult> response) {
     return response.getData().getResult().stream()
         .map(PromResponse.VectrixResult::toMatrixResult)
@@ -62,13 +66,9 @@ public interface PromResponseMapper {
         .collect(Collectors.toList());
   }
 
-  @Mapping(expression = "java(arg0.getMetric().get(\"__name__\"))", target="name")
-  @Mapping(source = "metric", target = "labels")
-  PromResponseDto.MatrixResultDto matrixResultToDto(PromResponse.MatrixResult arg0);
-
-  default List<PromResponseDto.MatrixResultDto> matrixResponseToDto(PromResponse<PromResponse.MatrixResult> response) {
+  default List<PromResponseDto.VectrixResultDto> vectrixResponseToDto(PromResponse<PromResponse.VectrixResult> response) {
     return response.getData().getResult().stream()
-        .map(this::matrixResultToDto)
+        .map(this::vectrixResultToDto)
         .collect(Collectors.toList());
   }
 }
