@@ -36,6 +36,16 @@ public abstract class PromResponseDto {
   @lombok.EqualsAndHashCode(callSuper = false)
   public static final class VectorResultDto extends PromResponseDto {
     private PromResponse.ResultValue<PromResponse.VectorResult> value;
+
+    public MatrixResultDto toMatrixResultDto() {
+      return PromResponseMapper.INSTANCE.matrixResultToDto(value.getResult().toMatrixResult());
+    }
+  }
+
+  @lombok.Data
+  @lombok.EqualsAndHashCode(callSuper = false)
+  public static class MatrixResultDto extends PromResponseDto {
+    private List<PromResponse.ResultValue<PromResponse.MatrixResult>> values;
   }
 
   @lombok.Data
@@ -47,11 +57,13 @@ public abstract class PromResponseDto {
     public List<PromResponse.ResultValue<PromResponse.VectrixResult>> getValues() {
       return Objects.requireNonNullElseGet(values, () -> List.of(value));
     }
-  }
 
-  @lombok.Data
-  @lombok.EqualsAndHashCode(callSuper = false)
-  public static class MatrixResultDto extends PromResponseDto {
-    private List<PromResponse.ResultValue<PromResponse.MatrixResult>> values;
+    public VectorResultDto toVectorResultDto() {
+      return PromResponseMapper.INSTANCE.vectorResultToDto(value.getResult().toVectorResult());
+    }
+
+    public MatrixResultDto toMatrixResultDto() {
+      return PromResponseMapper.INSTANCE.matrixResultToDto(values.get(0).getResult().toMatrixResult());
+    }
   }
 }
