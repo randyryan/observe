@@ -269,4 +269,19 @@ public class PromQueryBuilderTest {
 
     Assertions.assertEquals("max(go_threads)", aggregatedQuery.getQuery(), "Aggregation operator is properly applied.");
   }
+
+  @Test
+  @DisplayName("Aggregate rate and irate")
+  public void aggregate2() {
+    PromQuery aggregatedQuery = PromQuery
+            .irate(
+                    PromQuery.builder()
+                            .instant()
+                            .metric("go_threads")
+                            .duration("15m")
+            )
+            .build();
+
+    Assertions.assertEquals("irate(go_threads[15m])", aggregatedQuery.getQuery(), "Aggregation operator is properly applied.");
+  }
 }

@@ -91,6 +91,21 @@ public abstract class PromQuery {
     return new PromQueryBuilder.AggregatedQueryBuilder(queryBuilder, "max");
   }
 
+  @Deprecated
+  public static PromQueryBuilder.AggregatedQueryBuilder irate(PromQueryBuilder.InstantQueryBuilder queryBuilder) {
+    return new PromQueryBuilder.AggregatedQueryBuilder(queryBuilder, "irate");
+  }
+
+  @Deprecated
+  public static PromQueryBuilder.AggregatedQueryBuilder rate(PromQueryBuilder.InstantQueryBuilder queryBuilder) {
+    return new PromQueryBuilder.AggregatedQueryBuilder(queryBuilder, "rate");
+  }
+
+  @Deprecated
+  public static PromQueryBuilder.AggregatedQueryBuilder avg_over_time(PromQueryBuilder.InstantQueryBuilder queryBuilder) {
+    return new PromQueryBuilder.AggregatedQueryBuilder(queryBuilder, "avg_over_time");
+  }
+
   private static final QueryBuilders QUERY_BUILDERS = new QueryBuilders();
 
   public static enum QueryType {

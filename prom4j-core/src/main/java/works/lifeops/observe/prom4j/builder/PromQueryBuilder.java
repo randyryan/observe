@@ -232,6 +232,11 @@ public abstract class PromQueryBuilder<B extends PromQueryBuilder<B, PQ>, PQ ext
       return this;
     }
 
+    public InstantQueryBuilder duration(String duration) {
+      this.duration = Optional.ofNullable(duration);
+      return this;
+    }
+
     public InstantQueryBuilder duration(Optional<String> duration) {
       this.duration = duration;
       return this;
