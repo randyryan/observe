@@ -260,6 +260,11 @@ public class PromQueryUriBuilderFactory extends DefaultUriBuilderFactory impleme
       return createUri(uric);
     }
 
+    @Override
+    public String toUriString() {
+      return this.uriComponentsBuilder.build().toUriString();
+    }
+
     private URI createUri(UriComponents uric) {
       if (getEncodingMode().equals(EncodingMode.URI_COMPONENT)) {
         uric = uric.encode();

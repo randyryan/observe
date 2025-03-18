@@ -13,21 +13,21 @@
  */
 pluginManagement {
     plugins {
-        id 'org.springframework.boot' version '2.7.11'
-        id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+        id 'org.springframework.boot' version '3.4.3'
+        id 'io.spring.dependency-management' version '1.1.7'
     }
 }
 
 dependencyResolutionManagement {
     versionCatalogs {
         libs {
-            library('lombok', 'org.projectlombok:lombok:1.18.26')
-            library('mapstruct', 'org.mapstruct:mapstruct:1.5.5.Final')
-            library('mapstruct-processor', 'org.mapstruct:mapstruct-processor:1.5.5.Final')
+            library('lombok', 'org.projectlombok:lombok:1.18.36')
+            library('mapstruct', 'org.mapstruct:mapstruct:1.6.3')
+            library('mapstruct-processor', 'org.mapstruct:mapstruct-processor:1.6.3')
             bundle('preprocessors', ['lombok', 'mapstruct', 'mapstruct.processor'])
-            library('guava', 'com.google.guava:guava:31.1-jre')
-            library('jackson-databind', 'com.fasterxml.jackson.core:jackson-databind:2.15.0')
-            library('jackson-datatype-jsr310', 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0')
+            library('guava', 'com.google.guava:guava:33.3.1-jre')
+            library('jackson-databind', 'com.fasterxml.jackson.core:jackson-databind:2.18.3')
+            library('jackson-datatype-jsr310', 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.3')
         }
     }
 }

@@ -15,14 +15,14 @@ plugins {
     id 'java-library'
     id 'org.springframework.boot'
     id 'io.spring.dependency-management'
-    id 'org.openapi.generator' version '5.3.1'
+    id 'org.openapi.generator' version '7.5.0'
     id 'com.github.node-gradle.node' version '3.5.0'
 }
 
 group = 'works.lifeops.observe'
 version = '0.0.1-SNAPSHOT'
 
-sourceCompatibility = '11'
+sourceCompatibility = '17'
 
 repositories {
     mavenCentral()
@@ -38,9 +38,12 @@ sourceSets {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.data:spring-data-commons'
     implementation 'io.springfox:springfox-swagger2:3.0.0'
+    implementation 'io.swagger.core.v3:swagger-annotations:2.2.20'
     implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
-    implementation 'javax.validation:validation-api:2.0.1.Final'
+    implementation "jakarta.annotation:jakarta.annotation-api"
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
 }
 
 task spotGenerate(type: NpxTask) {
@@ -67,9 +70,17 @@ openApiGenerate {
     apiFilesConstrainedTo = ['']
     modelFilesConstrainedTo = ['']
     supportingFilesConstrainedTo = ['ApiUtil.java']
-    configOptions = [delegatePattern: 'true', title: 'service']
+    configOptions = [
+        delegatePattern: 'true',
+        title: 'service',
+        documentationProvider: 'springdoc',
+        useSpringBoot3: 'true'
+    ]
+    schemaMappings = [
+        Pageable: 'org.springframework.data.domain.Pageable',
+        Page: 'org.springframework.data.domain.Page'
+    ]
     validateSpec = true
-    importMappings = [Problem:'org.zalando.problem.Problem']
 }
 
 tasks.openApiGenerate.dependsOn tasks.spotGenerate

@@ -2,10 +2,10 @@
   "name": "prom4j-oas-generator",
   "description": "The project for generating the OpenAPI Specification.",
   "scripts": {
-    "postinstall": "npm install --save-dev --location=local ./tools/airtasker-spot-1.9.0-lwan-mod.tgz",
+    "postinstall": "npm install --save-dev --location=local ./tools/airtasker-spot-1.13.0-lwan-mod.tgz",
     "spotGenerate": "npx @airtasker/spot generate --contract src/main/api/api.ts --generator openapi3 --language yaml --out build/specs/"
   },
   "devDependencies": {
-    "@airtasker/spot": "file:tools/airtasker-spot-1.9.0-lwan-mod.tgz"
+    "@airtasker/spot": "file:tools/airtasker-spot-1.13.0-lwan-mod.tgz"
   }
 }
